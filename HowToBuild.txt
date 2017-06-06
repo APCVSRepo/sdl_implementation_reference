@@ -1,0 +1,42 @@
+# sdl_implementation_reference
+
+1. Install the compiler.
+
+	We should use an cross compiler which the version is lower than 4.9, otherwise the program can not run.
+
+	a) if your system support default package, please use follow command to install the compiler
+
+		sudo apt-get install gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf
+
+    b) otherwise, use the local package. Here is gcc-linaro-arm-linux-gnueabihf-4.8-2014.04_linux.tar.xz, please extract it, and copy to /opt directory as administrator.
+	then set the path to your bash system. Open the file .bashrc in your home directory, append the string:
+
+		export PATH=$PATH:<path to the compiler you just copied>
+
+	then restart your bash window, and now it works.
+
+	Here to download the cross compiler:
+
+		Link:http://pan.baidu.com/s/1i542ohn Key: xwqs
+
+	c) if can not find compiler, say "No such file or directory.", please install 32 bits library.
+
+		sudo apt-get install lib32ncurses5 lib32z1 lib32stdc++6
+	
+2. Build and Run
+
+	a) Get source code.
+
+		git clone https://github.com/luwanjia/sdl_implementation_reference.git
+	
+	b) Generate project by cmake
+
+		$cd sdl_implementation_reference
+		$mkdir build
+		$cd build
+		$cmake -DCMAKE_BUILD_TYPE="Release" ..
+		$make
+		$make install
+	
+	After those operations, the binary package will be created, copy the bin folder to you embedded linux system, and run.
+	
