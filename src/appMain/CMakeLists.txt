@@ -57,6 +57,10 @@ if (TELEMETRY_MONITOR)
         TelemetryMonitor)
 endif()
 
+link_directories(
+  ${CMAKE_SOURCE_DIR}/lib/openssl
+)
+
 set(LIBRARIES
   MediaManager
   ApplicationManager
@@ -113,6 +117,7 @@ include_directories (
   ${SecurityManagerIncludeDir}
   ${COMPONENTS_DIR}/security_manager/include
   ${COMPONENTS_DIR}/config_profile/include
+  ${COMPONENTS_DIR}/include/
   ${COMPONENTS_DIR}/utils/include/
   ${COMPONENTS_DIR}/connection_handler/include/
   ${COMPONENTS_DIR}/hmi_message_handler/include

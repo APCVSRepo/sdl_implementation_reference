@@ -31,6 +31,7 @@
 
 include_directories (
     include/
+    ${COMPONENTS_DIR}/include/
     ${COMPONENTS_DIR}/application_manager/include/
     ${COMPONENTS_DIR}/utils/include/
     ${COMPONENTS_DIR}/smart_objects/include/

@@ -38,17 +38,17 @@ set (HMI "web" CACHE STRING "HMI type")
 option(HMI2 "Use Qt HMI" OFF)
 option(EXTENDED_MEDIA_MODE "Turn on and off extended Madia Manager features relates to PulseAudio A2DP and GStreamer" OFF)
 option(BUILD_SHARED_LIBS "Build all libraries as shared (if ON) or static (if OFF)" OFF)
-option(BUILD_BT_SUPPORT "Bluetooth support" ON)
-option(BUILD_USB_SUPPORT "libusb support" ON)
-option(BUILD_BACKTRACE_SUPPORT "backtrace support" ON)
+option(BUILD_BT_SUPPORT "Bluetooth support" OFF)
+option(BUILD_USB_SUPPORT "libusb support" OFF)
+option(BUILD_BACKTRACE_SUPPORT "backtrace support" OFF)
 option(BUILD_TESTS "Possibility to build and run tests" OFF)
-option(TELEMETRY_MONITOR "Enable profiling time test util" ON)
-option(ENABLE_LOG "Logging feature" ON)
+option(TELEMETRY_MONITOR "Enable profiling time test util" OFF)
+option(ENABLE_LOG "Logging feature" OFF)
 option(ENABLE_GCOV "gcov code coverage feature" OFF)
 option(ENABLE_SANITIZE "Sanitize tool" OFF)
-option(ENABLE_SECURITY "Security Ford protocol protection" ON)
-option(ENABLE_HMI_PTU_DECRYPTION "Policy table update parsed by hmi" ON)
-option(ENABLE_EXTENDED_POLICY "Turns extended flow which requires embedded system interaction" ON)
+option(ENABLE_SECURITY "Security Ford protocol protection" OFF)
+option(ENABLE_HMI_PTU_DECRYPTION "Policy table update parsed by hmi" OFF)
+option(ENABLE_EXTENDED_POLICY "Turns extended flow which requires embedded system interaction" OFF)
 
 set(OS_TYPE_OPTION 	"$ENV{OS_TYPE}")
 set(DEBUG_OPTION 	"$ENV{DEBUG}")
@@ -64,8 +64,10 @@ set(SECURITY_OPTION 	"$ENV{SECURITY_MODE}")
 set(COMPONENTS_DIR ${CMAKE_SOURCE_DIR}/src/components)
 set(SNAPSHOT_TAG 	"$ENV{SNAPSHOT_TAG}")
 
-set(CMAKE_CXX_COMPILER   $ENV{CMAKE_CXX_COMPILER})
-set(CMAKE_C_COMPILER     $ENV{CMAKE_C_COMPILER})
+# Set the cross compiler
+set (CROSS_COMPILE_PREFIX "arm-linux-gnueabihf-")
+set (CMAKE_C_COMPILER ${CROSS_COMPILE_PREFIX}gcc)
+set (CMAKE_CXX_COMPILER ${CROSS_COMPILE_PREFIX}g++)
 
 if (ARCH_TYPE_OPTION)
   if (NOT (${ARCH_TYPE_OPTION} STREQUAL "x86") AND NOT (${ARCH_TYPE_OPTION} STREQUAL "armv7"))
@@ -172,12 +174,7 @@ add_custom_target(genivi-tarball
   COMMAND tar -cz -C /tmp/GENIVI -f ${CMAKE_BINARY_DIR}/genivi.tar.gz .
 )
 
-
-project (${PROJECT})
-
-#ADD_DEPENDENCIES(${PROJECT} Policy)
-
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
+set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 
 # Please do not change compiler/linker flags if You do not know how particular
 # flag is handled by CMake
@@ -208,7 +205,7 @@ endif()
 
 if (BUILD_USB_SUPPORT)
   add_definitions(-DUSB_SUPPORT)
-  find_package(UDev REQUIRED)
+  #find_package(UDev REQUIRED)
   message(STATUS "USB support is enabled")
 endif()
 
@@ -377,15 +374,6 @@ if (HMIADAPTER STREQUAL "mqueue")
     add_definitions(-DMQUEUE_HMIADAPTER)
     add_definitions(-DHMI_JSON_API)
 endif()
-
-# --- Directory with SDL interfaces, global types and ProtocolLib component
-include_directories(
-  ${COMPONENTS_DIR}/include
-  ${COMPONENTS_DIR}/protocol/include
-if (BUILD_TESTS)
-  ${COMPONENTS_DIR}/include/test
-endif ()
-)
 
 # --- 3rd party libs
 INCLUDE(${CMAKE_CURRENT_SOURCE_DIR}/src/3rd_party/set_3rd_party_paths.cmake)
@@ -654,8 +642,7 @@ endif()
 add_subdirectory(./src/3rd_party-static)
 
 # --- Tools
-add_subdirectory(./tools)
-
+#add_subdirectory(./tools)
 
 # --- Components
 add_subdirectory(./src/components)
@@ -664,7 +651,7 @@ add_subdirectory(./src/components)
 add_subdirectory(./src/appMain)
 
 # --- Plugins
-add_subdirectory(./src/plugins)
+#add_subdirectory(./src/plugins)
 
 
 # Building tests

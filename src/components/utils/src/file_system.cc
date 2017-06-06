@@ -400,7 +400,7 @@ const std::string file_system::ConvertPathForURL(const std::string& path) {
 }
 
 bool file_system::CreateFile(const std::string& path) {
-  std::ofstream file(path);
+  std::ofstream file(path.c_str());
   if (!(file.is_open())) {
     return false;
   } else {
@@ -439,11 +439,11 @@ bool file_system::MoveFile(const std::string& src, const std::string& dst) {
     // an error (at least on QNX).
     // Seems, streams are not recommended for use, so have
     // to find another way to do this.
-    std::ifstream s_src(src, std::ios::binary);
+    std::ifstream s_src(src.c_str(), std::ios::binary);
     if (!s_src.good()) {
       return false;
     }
-    std::ofstream s_dst(dst, std::ios::binary);
+    std::ofstream s_dst(dst.c_str(), std::ios::binary);
     if (!s_dst.good()) {
       return false;
     }

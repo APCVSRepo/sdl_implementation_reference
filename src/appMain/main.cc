@@ -47,7 +47,7 @@
 #include "utils/logger.h"
 #endif
 
-#include "./life_cycle.h"
+#include "life_cycle.h"
 #include "signal_handlers.h"
 
 #include "utils/signals.h"

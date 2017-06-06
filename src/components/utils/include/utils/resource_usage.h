@@ -41,6 +41,7 @@
 #include "utils/macro.h"
 #include <string>
 #include <iostream>
+#include <stdint.h>
 
 #include "utils/logger.h"
 

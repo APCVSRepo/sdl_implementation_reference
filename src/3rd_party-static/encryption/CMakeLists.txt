@@ -3,6 +3,7 @@ set(ENCRYPTION_INCLUDE_DIRECTORY ${ENCRYPTION_INCLUDE_DIRECTORY} PARENT_SCOPE)
 
 include_directories (
   ./include
+  ${CMAKE_SOURCE_DIR}/include
 )
 
 set (SOURCES
@@ -10,7 +11,14 @@ set (SOURCES
     ./src/hashing.cc
 )
 
-set (LIBRARIES crypto)
+link_directories(
+  ${CMAKE_SOURCE_DIR}/lib/openssl
+)
+
+set (LIBRARIES
+  crypto
+  ssl
+)
 
 add_library("encryption" ${SOURCES})
 target_link_libraries("encryption" "${LIBRARIES}")

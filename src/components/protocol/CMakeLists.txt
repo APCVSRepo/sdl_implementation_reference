@@ -31,6 +31,7 @@
 
 include_directories(
   ./include
+  ${COMPONENTS_DIR}/include/
   ${APR_INCLUDE_DIRECTORY}
 )
 

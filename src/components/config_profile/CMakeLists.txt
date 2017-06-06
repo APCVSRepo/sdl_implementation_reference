@@ -31,8 +31,10 @@
 
 include_directories (
   include
+  ${COMPONENTS_DIR}/include
   ${COMPONENTS_DIR}/utils/include/
   ${LOG4CXX_INCLUDE_DIRECTORY}
+  ${CMAKE_SOURCE_DIR}/include
 )
 
 set (SOURCES
