@@ -58,7 +58,7 @@ if (TELEMETRY_MONITOR)
 endif()
 
 link_directories(
-  ${CMAKE_SOURCE_DIR}/lib/openssl
+  ${OPENSSL_LIB_DIRECTORY}
 )
 
 set(LIBRARIES

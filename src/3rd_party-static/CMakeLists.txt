@@ -41,8 +41,9 @@ add_subdirectory(./sqlite3-3.18)
 set(SQLITE3_INCLUDE_DIRECTORY ${SQLITE3_INCLUDE_DIRECTORY} PARENT_SCOPE)
 
 # --- openssl-fips-2.0.9
-# add_subdirectory(./openssl-fips-2.0.9)
-# set(OPENSSL_INCLUDE_DIRECTORY ${OPENSSL_INCLUDE_DIRECTORY} PARENT_SCOPE)
+add_subdirectory(./openssl-fips-2.0.9)
+set(OPENSSL_INCLUDE_DIRECTORY ${OPENSSL_INCLUDE_DIRECTORY} PARENT_SCOPE)
+set(OPENSSL_LIB_DIRECTORY ${OPENSSL_LIB_DIRECTORY} PARENT_SCOPE)
 
 # --- encryption
 add_subdirectory(./encryption)
