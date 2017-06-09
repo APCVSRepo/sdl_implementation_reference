@@ -40,8 +40,8 @@ set(MESSAGE_BROKER_INCLUDE_DIRECTORY ${MESSAGE_BROKER_INCLUDE_DIRECTORY} PARENT_
 add_subdirectory(./sqlite3-3.18)
 set(SQLITE3_INCLUDE_DIRECTORY ${SQLITE3_INCLUDE_DIRECTORY} PARENT_SCOPE)
 
-# --- openssl-1.1.0e
-# add_subdirectory(./openssl-1.1.0e)
+# --- openssl-fips-2.0.9
+# add_subdirectory(./openssl-fips-2.0.9)
 # set(OPENSSL_INCLUDE_DIRECTORY ${OPENSSL_INCLUDE_DIRECTORY} PARENT_SCOPE)
 
 # --- encryption
