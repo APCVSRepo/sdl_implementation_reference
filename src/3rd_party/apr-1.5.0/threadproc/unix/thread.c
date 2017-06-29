@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #include "apr.h"
 #include "apr_portable.h"
 #include "apr_arch_threadproc.h"
