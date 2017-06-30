@@ -31,8 +31,8 @@
 
 	c) Set the path to your bash system. Open the file .bashrc in your home directory, append the string:
 
-		export CPLUS_INCLUDE_PATH=<path to the compiler you just copied>
-	
+		export CPLUS_INCLUDE_PATH=<path to the compiler you just copied>	
+
 3. Build and Run
 
 	a) Get source code.
