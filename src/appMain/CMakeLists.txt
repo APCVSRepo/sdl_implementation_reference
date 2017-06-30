@@ -59,10 +59,12 @@ if (TELEMETRY_MONITOR)
         TelemetryMonitor)
 endif()
 
+if (FIREFLY_RK3288)
 link_directories(
   ${OPENSSL_LIB_DIRECTORY}
   ${BLUETOOTHLIBPATH}
 )
+endif()
 
 set(LIBRARIES
   MediaManager
@@ -120,7 +122,6 @@ include_directories (
   ${SecurityManagerIncludeDir}
   ${COMPONENTS_DIR}/security_manager/include
   ${COMPONENTS_DIR}/config_profile/include
-  ${COMPONENTS_DIR}/include/
   ${COMPONENTS_DIR}/utils/include/
   ${COMPONENTS_DIR}/connection_handler/include/
   ${COMPONENTS_DIR}/hmi_message_handler/include

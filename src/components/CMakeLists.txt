@@ -29,7 +29,6 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 set(COMPONENTS_DIR ${CMAKE_SOURCE_DIR}/src/components)
-set(COMPONENTS_DIR ${COMPONENTS_DIR} PARENT_SCOPE)
 
 # --- HMI_API interfaces
 add_subdirectory(./interfaces)

@@ -40,19 +40,25 @@ file(MAKE_DIRECTORY
 set(EXPAT_SOURCE_DIRECTORY ${APR_UTIL_SOURCE_DIRECTORY}/../expat-2.1.0)
 set(EXPAT_BUILD_DIRECTORY ${APR_UTIL_BUILD_DIRECTORY}/../expat-2.1.0)
 
+if (FIREFLY_RK3288)
 set(COMMON_CONFIGURE_FLAGS
   "--host=arm-linux-gnueabihf"
   "--with-apr=../apr-build"
   "--with-expat-source=${EXPAT_SOURCE_DIRECTORY}"
   "--with-expat-build=${EXPAT_BUILD_DIRECTORY}"
 )
+else()
+set(COMMON_CONFIGURE_FLAGS
+  "--with-apr=../apr-build"
+  "--with-expat-source=${EXPAT_SOURCE_DIRECTORY}"
+  "--with-expat-build=${EXPAT_BUILD_DIRECTORY}"
+)
+endif()
 
 if(CMAKE_SYSTEM_NAME STREQUAL "QNX")
   set(CONFIGURE_FLAGS "--host=${CMAKE_SYSTEM_PROCESSOR}-nto-qnx" ${COMMON_CONFIGURE_FLAGS})
 else()
-  set(CONFIGURE_FLAGS 
-	${COMMON_CONFIGURE_FLAGS}
-)
+  set(CONFIGURE_FLAGS ${COMMON_CONFIGURE_FLAGS})
 endif()
 
 

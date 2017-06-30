@@ -30,12 +30,15 @@
 
 set(target dbms)
 
-#find_package(Sqlite3 REQUIRED)
+if (NOT FIREFLY_RK3288)
+find_package(Sqlite3 REQUIRED)
+endif()
 
-include_directories(
-  ${COMPONENTS_DIR}/utils/include/utils
-  ${SQLITE3_INCLUDE_DIRECTORY}
-)
+include_directories(${COMPONENTS_DIR}/utils/include/utils)
+
+if (FIREFLY_RK3288)
+  include_directories(${SQLITE3_INCLUDE_DIRECTORY})
+endif()
 
 set(SOURCES
   ./sql_database.cc
