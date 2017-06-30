@@ -41,13 +41,13 @@
 #include <fstream>   // cpplint: Streams are highly discouraged.
 
 // ----------------------------------------------------------------------------
-
+// If disable log4cxx, those tow header files should not be included.
 #ifdef ENABLE_LOG
 #include "utils/log_message_loop_thread.h"
 #include "utils/logger.h"
 #endif
 
-#include "life_cycle.h"
+#include "./life_cycle.h"
 #include "signal_handlers.h"
 
 #include "utils/signals.h"

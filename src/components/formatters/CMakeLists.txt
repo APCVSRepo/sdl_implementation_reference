@@ -34,7 +34,6 @@ set(FORMATTERS_SRC_DIR  ${COMPONENTS_DIR}/formatters/src)
 include_directories (
   include/
   ${COMPONENTS_DIR}/protocol_handler/include/
-  ${COMPONENTS_DIR}/include/
   ${COMPONENTS_DIR}/utils/include/
   ${JSONCPP_INCLUDE_DIRECTORY}
   ${MESSAGE_BROKER_INCLUDE_DIRECTORY}

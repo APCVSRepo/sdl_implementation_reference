@@ -10,6 +10,7 @@ include_directories (
   ./
 )
 
+if (FIREFLY_RK3288)
 set (LIBUSB_SOURCES
 	./libusb/core.c
 	./libusb/descriptor.c
@@ -23,8 +24,25 @@ set (LIBUSB_SOURCES
 	./libusb/os/poll_posix.c
 	./libusb/os/threads_posix.c
 )
+else()
+set (LIBUSB_SOURCES
+	./libusb/core.c
+	./libusb/descriptor.c
+	./libusb/hotplug.c
+	./libusb/io.c
+	./libusb/strerror.c
+	./libusb/sync.c
+	./libusb/os/linux_udev.c
+	./libusb/os/linux_netlink.c
+	./libusb/os/linux_usbfs.c
+	./libusb/os/poll_posix.c
+	./libusb/os/threads_posix.c
+)
+endif()
 
 add_library("Libusb-1.0.16" ${LIBUSB_SOURCES})
 
 
-#target_link_libraries("Libusb-1.0.16" udev)
+if (NOT FIREFLY_RK3288)
+target_link_libraries("Libusb-1.0.16" udev)
+endif()

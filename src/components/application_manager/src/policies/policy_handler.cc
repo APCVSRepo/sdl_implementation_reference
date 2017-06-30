@@ -282,6 +282,7 @@ struct PermissionsConsolidator {
   std::vector<policy::FunctionalGroupPermission> consolidated_permissions_;
 };
 
+// Solved the error that can not find libPolicy.so in current local directory.
 const std::string PolicyHandler::kLibrary = "./libPolicy.so";
 
 PolicyHandler::PolicyHandler(const PolicySettings& settings,

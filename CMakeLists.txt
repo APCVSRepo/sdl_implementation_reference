@@ -38,7 +38,7 @@ set (HMI "web" CACHE STRING "HMI type")
 option(HMI2 "Use Qt HMI" OFF)
 option(EXTENDED_MEDIA_MODE "Turn on and off extended Madia Manager features relates to PulseAudio A2DP and GStreamer" OFF)
 option(BUILD_SHARED_LIBS "Build all libraries as shared (if ON) or static (if OFF)" OFF)
-option(BUILD_BT_SUPPORT "Bluetooth support" ON)
+option(BUILD_BT_SUPPORT "Bluetooth support" OFF)
 option(BUILD_USB_SUPPORT "libusb support" ON)
 option(BUILD_BACKTRACE_SUPPORT "backtrace support" OFF)
 option(BUILD_TESTS "Possibility to build and run tests" OFF)
@@ -49,6 +49,7 @@ option(ENABLE_SANITIZE "Sanitize tool" OFF)
 option(ENABLE_SECURITY "Security Ford protocol protection" OFF)
 option(ENABLE_HMI_PTU_DECRYPTION "Policy table update parsed by hmi" OFF)
 option(ENABLE_EXTENDED_POLICY "Turns extended flow which requires embedded system interaction" OFF)
+option(FIREFLY_RK3288 "Enable cross compile for embedded system of rk3288" ON)
 
 set(OS_TYPE_OPTION 	"$ENV{OS_TYPE}")
 set(DEBUG_OPTION 	"$ENV{DEBUG}")
@@ -64,10 +65,14 @@ set(SECURITY_OPTION 	"$ENV{SECURITY_MODE}")
 set(COMPONENTS_DIR ${CMAKE_SOURCE_DIR}/src/components)
 set(SNAPSHOT_TAG 	"$ENV{SNAPSHOT_TAG}")
 
-# Set the cross compiler
+if (FIREFLY_RK3288)
 set (CROSS_COMPILE_PREFIX "arm-linux-gnueabihf-")
 set (CMAKE_C_COMPILER ${CROSS_COMPILE_PREFIX}gcc)
 set (CMAKE_CXX_COMPILER ${CROSS_COMPILE_PREFIX}g++)
+else ()
+set(CMAKE_CXX_COMPILER   $ENV{CMAKE_CXX_COMPILER})
+set(CMAKE_C_COMPILER     $ENV{CMAKE_C_COMPILER})
+endif()
 
 if (ARCH_TYPE_OPTION)
   if (NOT (${ARCH_TYPE_OPTION} STREQUAL "x86") AND NOT (${ARCH_TYPE_OPTION} STREQUAL "armv7"))
@@ -174,7 +179,12 @@ add_custom_target(genivi-tarball
   COMMAND tar -cz -C /tmp/GENIVI -f ${CMAKE_BINARY_DIR}/genivi.tar.gz .
 )
 
-set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
+
+project (${PROJECT})
+
+#ADD_DEPENDENCIES(${PROJECT} Policy)
+
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 
 # Please do not change compiler/linker flags if You do not know how particular
 # flag is handled by CMake
@@ -195,6 +205,9 @@ set(CMAKE_CXX_FLAGS_DEBUG   " -DDEBUG -g3 -ggdb3")
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
   add_definitions(-DOS_LINUX)
+  if (FIREFLY_RK3288)
+  add_definitions(-DFIREFLY_RK3288)
+  endif()
 elseif(CMAKE_SYSTEM_NAME STREQUAL "QNX")
   add_definitions(-DOS_QNX)
   SET(BUILD_BT_SUPPORT OFF)
@@ -205,7 +218,9 @@ endif()
 
 if (BUILD_USB_SUPPORT)
   add_definitions(-DUSB_SUPPORT)
-  #find_package(UDev REQUIRED)
+  if (NOT FIREFLY_RK3288)
+  find_package(UDev REQUIRED)
+  endif()
   message(STATUS "USB support is enabled")
 endif()
 
@@ -374,6 +389,15 @@ if (HMIADAPTER STREQUAL "mqueue")
     add_definitions(-DMQUEUE_HMIADAPTER)
     add_definitions(-DHMI_JSON_API)
 endif()
+
+# --- Directory with SDL interfaces, global types and ProtocolLib component
+include_directories(
+  ${COMPONENTS_DIR}/include
+  ${COMPONENTS_DIR}/protocol/include
+if (BUILD_TESTS)
+  ${COMPONENTS_DIR}/include/test
+endif ()
+)
 
 # --- 3rd party libs
 INCLUDE(${CMAKE_CURRENT_SOURCE_DIR}/src/3rd_party/set_3rd_party_paths.cmake)
@@ -642,8 +666,9 @@ endif()
 add_subdirectory(./src/3rd_party-static)
 
 # --- Tools
-#add_subdirectory(./tools)
-
+if (NOT FIREFLY_RK3288)
+add_subdirectory(./tools)
+endif()
 # --- Components
 add_subdirectory(./src/components)
 
@@ -651,8 +676,9 @@ add_subdirectory(./src/components)
 add_subdirectory(./src/appMain)
 
 # --- Plugins
-#add_subdirectory(./src/plugins)
-
+if (NOT FIREFLY_RK3288)
+add_subdirectory(./src/plugins)
+endif()
 
 # Building tests
 if(BUILD_TESTS)

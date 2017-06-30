@@ -36,7 +36,6 @@ set (AM_MOCK_DIR ${AM_TEST_DIR}/mock)
 include_directories (
   include/
   ${COMPONENTS_DIR}
-  ${COMPONENTS_DIR}/include/
   ${COMPONENTS_DIR}/utils/include/
   ${COMPONENTS_DIR}/formatters/include/
   ${COMPONENTS_DIR}/protocol_handler/include/
@@ -56,8 +55,13 @@ include_directories (
   ${ENCRYPTION_INCLUDE_DIRECTORY}
   ${MESSAGE_BROKER_INCLUDE_DIRECTORY}
   ${LOG4CXX_INCLUDE_DIRECTORY}
-  ${OPENSSL_INCLUDE_DIRECTORY}
 )
+
+if (FIREFLY_RK3288)
+include_directories (
+    ${OPENSSL_INCLUDE_DIRECTORY}
+)
+endif()
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   include_directories(

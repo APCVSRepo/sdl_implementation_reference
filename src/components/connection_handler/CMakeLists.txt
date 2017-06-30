@@ -34,12 +34,16 @@ set(CH_SRC_DIR ${COMPONENTS_DIR}/connection_handler/src)
 include_directories (
     include
     ${COMPONENTS_DIR}/protocol_handler/include/
-    ${COMPONENTS_DIR}/include/
     ${COMPONENTS_DIR}/utils/include/
     ${ENCRYPTION_INCLUDE_DIRECTORY}
     ${LOG4CXX_INCLUDE_DIRECTORY}
+)
+
+if (FIREFLY_RK3288)
+include_directories (
     ${OPENSSL_INCLUDE_DIRECTORY}
 )
+endif()
 
 set (SOURCES
     ${CH_SRC_DIR}/connection_handler_impl.cc

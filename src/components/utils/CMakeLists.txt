@@ -34,7 +34,6 @@ set(UTILS_SRC_DIR ${COMPONENTS_DIR}/utils/src)
 
 include_directories (
   ${UTILS_INCLUDE_DIR}
-  ${COMPONENTS_DIR}/include
   ${COMPONENTS_DIR}/config_profile/include
   ${COMPONENTS_DIR}/media_manager/include
   ${COMPONENTS_DIR}/protocol_handler/include
