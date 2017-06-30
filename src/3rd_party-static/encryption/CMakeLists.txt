@@ -12,7 +12,7 @@ set (SOURCES
 )
 
 link_directories(
-  ${OPENSSL_LIB_DIRECTORY}
+  ${OPENSSL_LIBS_DIRECTORY}
 )
 
 set (LIBRARIES
