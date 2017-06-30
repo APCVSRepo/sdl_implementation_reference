@@ -25,7 +25,7 @@
 
 2. Install the blutooth compiler.
 
-	a) Download the installation package from "http://www.filewatcher.com/d/Debian/armhf/libdevel/libbluetooth-dev_4.99-2_armhf.deb.111400.html"
+	a) Download the installation package from "ftp://ftp.th.debian.org/debian/pool/main/b/bluez/libbluetooth-dev_4.99-2_armhf.deb"
 
 	b) Please extract libbluetooth-dev_4.99-2_armhf.deb,and copy to /opt directory as administrator.
 
