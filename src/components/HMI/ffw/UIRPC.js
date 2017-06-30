@@ -1563,7 +1563,7 @@ FFW.UI = FFW.RPCObserver.create({
 
         if (resultCode === SDL.SDLModel.resultCode["SUCCESS"]) {
 
-            this.sendUIResult(resultCode, id, 'UI.Alert');
+            //this.sendUIResult(resultCode, id, 'UI.Alert');
             // send repsonse
             var JSONMessage = {
                 "jsonrpc": "2.0",

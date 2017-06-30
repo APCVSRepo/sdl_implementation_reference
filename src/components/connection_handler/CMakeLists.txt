@@ -38,7 +38,7 @@ include_directories (
     ${COMPONENTS_DIR}/utils/include/
     ${ENCRYPTION_INCLUDE_DIRECTORY}
     ${LOG4CXX_INCLUDE_DIRECTORY}
-    ${CMAKE_SOURCE_DIR}/include
+    ${OPENSSL_INCLUDE_DIRECTORY}
 )
 
 set (SOURCES

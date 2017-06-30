@@ -35,6 +35,8 @@ set (BROKER_LIBRARIES
 )
 ENDIF ()
 
+set (BLUETOOTHLIBPATH "/opt/libbluetooth-dev_4.99-2_armhf/usr/lib/arm-linux-gnueabihf")
+
 cmake_policy(PUSH)
 # make link_directories() treat paths relative to the source dir
 # info: cmake --help-policy CMP0015
@@ -58,7 +60,8 @@ if (TELEMETRY_MONITOR)
 endif()
 
 link_directories(
-  ${CMAKE_SOURCE_DIR}/lib/openssl
+  ${OPENSSL_LIB_DIRECTORY}
+  ${BLUETOOTHLIBPATH}
 )
 
 set(LIBRARIES

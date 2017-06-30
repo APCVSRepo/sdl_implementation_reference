@@ -120,7 +120,7 @@
 #define USBI_TIMERFD_AVAILABLE 1
 
 /* Use udev for device enumeration/hotplug */
-#define USE_UDEV 1
+//#define USE_UDEV 1
 
 /* Version number of package */
 #define VERSION "1.0.16"

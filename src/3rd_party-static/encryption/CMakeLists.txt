@@ -3,7 +3,7 @@ set(ENCRYPTION_INCLUDE_DIRECTORY ${ENCRYPTION_INCLUDE_DIRECTORY} PARENT_SCOPE)
 
 include_directories (
   ./include
-  ${CMAKE_SOURCE_DIR}/include
+  ${OPENSSL_INCLUDE_DIRECTORY}
 )
 
 set (SOURCES
@@ -12,7 +12,7 @@ set (SOURCES
 )
 
 link_directories(
-  ${CMAKE_SOURCE_DIR}/lib/openssl
+  ${OPENSSL_LIB_DIRECTORY}
 )
 
 set (LIBRARIES

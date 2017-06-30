@@ -17,7 +17,7 @@ set (LIBUSB_SOURCES
 	./libusb/io.c
 	./libusb/strerror.c
 	./libusb/sync.c
-	./libusb/os/linux_udev.c
+	#./libusb/os/linux_udev.c
 	./libusb/os/linux_netlink.c
 	./libusb/os/linux_usbfs.c
 	./libusb/os/poll_posix.c
@@ -27,4 +27,4 @@ set (LIBUSB_SOURCES
 add_library("Libusb-1.0.16" ${LIBUSB_SOURCES})
 
 
-target_link_libraries("Libusb-1.0.16" udev)
+#target_link_libraries("Libusb-1.0.16" udev)
