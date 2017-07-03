@@ -417,8 +417,9 @@ if(ENABLE_LOG)
       add_custom_target(install-3rd_party_logger
         COMMAND /bin/bash -c \"USE_DEFAULT_3RD_PARTY_PATH=${USE_DEFAULT_3RD_PARTY_PATH}\;
                                if [ \\$$USE_DEFAULT_3RD_PARTY_PATH == "true" ]\; then
-                                 sudo -k \;
-                                 sudo make install\;
+                                 #sudo -k \;
+                                 #sudo make install\;
+				 make install\;
                                else
                                  make install\;
                                fi\"
@@ -473,8 +474,9 @@ if(ENABLE_LOG)
                                    USE_DEFAULT_3RD_PARTY_PATH=${USE_DEFAULT_3RD_PARTY_PATH}\;
                                    if [ \\$$USE_DEFAULT_3RD_PARTY_PATH == "true" ]\; then
                                      cd ${3RD_PARTY_BINARY_DIRECTORY}\;
-                                     sudo -k \;
-                                     sudo make install\;
+                                     #sudo -k \;
+                                     #sudo make install\;
+				     make install\;
                                    else
                                      cd ${3RD_PARTY_BINARY_DIRECTORY}\;
                                      make install\;
@@ -484,8 +486,9 @@ if(ENABLE_LOG)
                                  USE_DEFAULT_3RD_PARTY_PATH=${USE_DEFAULT_3RD_PARTY_PATH}\;
                                  if [ \\$$USE_DEFAULT_3RD_PARTY_PATH == "true" ]\; then
                                    cd ${3RD_PARTY_BINARY_DIRECTORY}\;
-                                   sudo -k \;
-                                   sudo make install\;
+                                   #sudo -k \;
+                                   #sudo make install\;
+				   make install\;
                                  else
                                    cd ${3RD_PARTY_BINARY_DIRECTORY}\;
                                    make install\;

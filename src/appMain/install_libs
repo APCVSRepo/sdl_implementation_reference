@@ -1,0 +1,4 @@
+#bin/bash
+cp ./libapr* /lib
+cp ./liblog4cxx.so /lib
+cp ./libexpat.so /lib
