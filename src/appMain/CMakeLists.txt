@@ -35,7 +35,7 @@ set (BROKER_LIBRARIES
 )
 ENDIF ()
 
-set (BLUETOOTHLIBPATH "/opt/libbluetooth-dev_4.99-2_armhf/usr/lib/arm-linux-gnueabihf")
+set (BLUETOOTH_LIBS_DIRECTORY "/opt/libbluetooth-dev_4.99-2_armhf/usr/lib/arm-linux-gnueabihf")
 
 cmake_policy(PUSH)
 # make link_directories() treat paths relative to the source dir
@@ -61,8 +61,8 @@ endif()
 
 if (FIREFLY_RK3288)
 link_directories(
-  ${OPENSSL_LIB_DIRECTORY}
-  ${BLUETOOTHLIBPATH}
+  ${OPENSSL_LIBS_DIRECTORY}
+  ${BLUETOOTH_LIBS_DIRECTORY}
 )
 endif()
 

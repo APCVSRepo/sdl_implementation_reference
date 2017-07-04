@@ -18,7 +18,7 @@ set (SOURCES
 
 if (FIREFLY_RK3288)
 link_directories(
-  ${OPENSSL_LIB_DIRECTORY}
+  ${OPENSSL_LIBS_DIRECTORY}
 )
 
 set (LIBRARIES
