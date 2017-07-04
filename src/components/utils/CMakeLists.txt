@@ -38,6 +38,7 @@ include_directories (
   ${COMPONENTS_DIR}/media_manager/include
   ${COMPONENTS_DIR}/protocol_handler/include
   ${LOG4CXX_INCLUDE_DIRECTORY}
+  ${APR_INCLUDE_DIRECTORY} 
 )
 
 set (SOURCES

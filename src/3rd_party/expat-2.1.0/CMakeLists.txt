@@ -1,7 +1,7 @@
 # This file is copyrighted under the BSD-license for buildsystem files of KDE
 # copyright 2010, Patrick Spendrin <ps_ml@gmx.de>
 
-project(expat)
+set(TARGET expat)
 
 cmake_minimum_required(VERSION 2.6)
 set(PACKAGE_BUGREPORT "expat-bugs@libexpat.org")
@@ -67,10 +67,6 @@ else(BUILD_shared)
 endif(BUILD_shared)
 
 add_library(expat ${_SHARED} ${expat_SRCS})
-
-install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/libexpat.so
-  DESTINATION ${3RD_PARTY_INSTALL_PREFIX_ARCH}/lib
-)
 
 set(prefix ${CMAKE_INSTALL_PREFIX})
 set(exec_prefix "\${prefix}/bin")
