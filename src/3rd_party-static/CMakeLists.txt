@@ -40,6 +40,7 @@ if (FIREFLY_RK3288)
 # --- sqlite3-3.18
 add_subdirectory(./sqlite3-3.18)
 set(SQLITE3_INCLUDE_DIRECTORY ${SQLITE3_INCLUDE_DIRECTORY} PARENT_SCOPE)
+endif()
 
 # --- openssl-fips-2.0.9
 add_subdirectory(./openssl-fips-2.0.9)
