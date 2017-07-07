@@ -57,11 +57,13 @@ bool ScrollableMessageRequest::Init() {
   /* Timeout in milliseconds.
      If omitted a standard value of 10000 milliseconds is used.*/
   if ((*message_)[strings::msg_params].keyExists(strings::timeout)) {
-    default_timeout_ =
+    hmi_default_timeout_ =
         (*message_)[strings::msg_params][strings::timeout].asUInt();
+    default_timeout_ = hmi_default_timeout_ + 1000;
   } else {
     const int32_t def_value = 30000;
-    default_timeout_ = def_value;
+    hmi_default_timeout_ = def_value;
+    default_timeout_ = hmi_default_timeout_ + 1000; 
   }
 
   return true;
@@ -101,7 +103,7 @@ void ScrollableMessageRequest::Run() {
   msg_params[hmi_request::message_text][hmi_request::field_text] =
       (*message_)[strings::msg_params][strings::scroll_message_body];
   msg_params[strings::app_id] = app->app_id();
-  msg_params[strings::timeout] = default_timeout_;
+  msg_params[strings::timeout] = hmi_default_timeout_;
 
   if ((*message_)[strings::msg_params].keyExists(strings::soft_buttons)) {
     msg_params[strings::soft_buttons] =
