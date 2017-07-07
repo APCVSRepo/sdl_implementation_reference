@@ -157,6 +157,7 @@ class CommandImpl : public Command {
 
   MessageSharedPtr message_;
   uint32_t default_timeout_;
+  uint32_t hmi_default_timeout_;
   bool allowed_to_terminate_;
   ApplicationManager& application_manager_;
 
