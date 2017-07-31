@@ -2,36 +2,38 @@
 ## Build Instruction
 
 ### 1. Install the compiler.
-
-We should use an cross compiler which requires the version lower than 4.9, otherwise the program can not run.
-
-#### a) if your system support default package, please use follow command to install the compiler
+#### a) Download the package of arm-linux-gnueabihf-gcc
+The compiler is [gcc-linaro-5.4.1-2017.05-x86_64_arm-linux-gnueabihf.tar.xz](https://releases.linaro.org/components/toolchain/binaries/5.4-2017.05/arm-linux-gnueabihf/gcc-linaro-5.4.1-2017.05-x86_64_arm-linux-gnueabihf.tar.xz), please download and extract it, and copy to /opt directory as administrator. 
 ```shell
-sudo apt-get install gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf
+$wget -c https://releases.linaro.org/components/toolchain/binaries/5.4-2017.05/arm-linux-gnueabihf/gcc-linaro-5.4.1-2017.05-x86_64_arm-linux-gnueabihf.tar.xz
+$tar -xvf gcc-linaro-5.4.1-2017.05-x86_64_arm-linux-gnueabihf.tar.xz
+$sudo mv gcc-linaro-5.4.1-2017.05-x86_64_arm-linux-gnueabihf /opt/arm-linux-gnueabihf-5.4.1
 ```
-#### b) otherwise, use the local package. Here is [gcc-linaro-arm-linux-gnueabihf-4.8-2014.04_linux.tar.xz](https://releases.linaro.org/archive/14.04/components/toolchain/binaries/gcc-linaro-arm-linux-gnueabihf-4.8-2014.04_linux.tar.xz), please extract it, and copy to /opt directory as administrator. 
-then set the PATH to your bash system. Open the file .bashrc in your home directory, append the string:
+#### b) Setup the environment variable
+Open the file .bashrc in your home directory, append the string:
+
+export PATH=$PATH:/opt/arm-linux-gnueabihf-5.4.1/bin
+
+then update environment variable and test the compiler version
 ```shell
-export PATH=$PATH:<path to the compiler you just copied>
+$source .bashrc
+$arm-linux-gnueabihf-gcc --version
 ```
-then restart your bash window, and now it should work.
-Here to download the cross compiler:
-Link:http://pan.baidu.com/s/1i542ohn Key: xwqs
 
 #### c) if can not find compiler, say "No such file or directory.", please install 32 bits library.
 ```shell
 sudo apt-get install lib32ncurses5 lib32z1 lib32stdc++6
 ```
-### 2. Install the bluetooth compiler.
+### 2. Add bluetooth library to compiler.
 
-#### a) Download the installation package from "http://www.filewatcher.com/d/Debian/armhf/libdevel/libbluetooth-dev_4.99-2_armhf.deb.111400.html"
-
-#### b) Please extract libbluetooth-dev_4.99-2_armhf.deb,and copy to /opt directory as administrator.
-
-#### c) Set the PATH to your bash system. Open the file .bashrc in your home directory, append the string:
+Download package from "ftp://ftp.th.debian.org/debian/pool/main/b/bluez/libbluetooth-dev_4.99-2_armhf.deb"
 ```shell
-export CPLUS_INCLUDE_PATH=<path to the compiler you just copied>	
+$wget -c ftp://ftp.th.debian.org/debian/pool/main/b/bluez/libbluetooth-dev_4.99-2_armhf.deb
+$dpkg-deb -x libbluetooth-dev_4.99-2_armhf.deb libbluetooth
+$sudo cp -rf libbluetooth/usr/include/* /opt/arm-linux-gnueabihf-5.4.1/arm-linux-gnueabihf/include/
+$sudo cp -rf libbluetooth/usr/lib/* /opt/arm-linux-gnueabihf-5.4.1/arm-linux-gnueabihf/lib/
 ```
+
 ### 3. Build and Run
 
 #### a) Get source code.
