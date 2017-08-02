@@ -119,6 +119,20 @@ void UsbHandler::DeviceArrived(libusb_device* device_libusb) {
     return;
   }
 
+  if ((kAppleVid == descriptor.idProduct) ||
+      (kApplePid1 == descriptor.idProduct) ||
+      (kApplePid2 == descriptor.idProduct) ||
+      (kApplePid3 == descriptor.idProduct) ||
+      (kApplePid4 == descriptor.idProduct) ||
+      (kApplePid5 == descriptor.idProduct) ||
+      (kApplePid6 == descriptor.idProduct) ||
+      (kApplePid7 == descriptor.idProduct) ||
+      (kApplePid8 == descriptor.idProduct) ||
+      (kApplePid9 == descriptor.idProduct))	{	
+      //printf("ios device->product_id:0x%x,libusb return \n",descriptor.idProduct);
+      return;
+  }
+
   libusb_device_handle* device_handle_libusb;
   libusb_ret = libusb_open(device_libusb, &device_handle_libusb);
   if (libusb_ret != LIBUSB_SUCCESS) {
@@ -172,6 +186,9 @@ void UsbHandler::DeviceArrived(libusb_device* device_libusb) {
        it != usb_device_listeners_.end();
        ++it) {
     (*it)->OnDeviceArrived(device);
+  }
+  if(IsAppleIAPDevice(device)){
+	  DeviceLeft(device_libusb);
   }
   LOG4CXX_TRACE(logger_, "exit");
 }
