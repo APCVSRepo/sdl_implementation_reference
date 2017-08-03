@@ -22,17 +22,7 @@ Link:http://pan.baidu.com/s/1i542ohn Key: xwqs
 ```shell
 sudo apt-get install lib32ncurses5 lib32z1 lib32stdc++6
 ```
-### 2. Install the bluetooth compiler.
-
-#### a) Download the installation package from "http://www.filewatcher.com/d/Debian/armhf/libdevel/libbluetooth-dev_4.99-2_armhf.deb.111400.html"
-
-#### b) Please extract libbluetooth-dev_4.99-2_armhf.deb,and copy to /opt directory as administrator.
-
-#### c) Set the PATH to your bash system. Open the file .bashrc in your home directory, append the string:
-```shell
-export CPLUS_INCLUDE_PATH=<path to the compiler you just copied>	
-```
-### 3. Build and Run
+### 2. Build and Run
 
 #### a) Get source code.
 ```shell

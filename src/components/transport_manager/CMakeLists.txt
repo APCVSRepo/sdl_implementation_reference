@@ -125,7 +125,6 @@ set(LIRBRARYS
     libusbmuxd.so
     xml2.so
     pthread.so 
-    libz.so
     )
 target_link_libraries(${target} ${LIRBRARYS} usbmuxd) 
 endif()
