@@ -98,6 +98,11 @@ endif()
 if (BUILD_BT_SUPPORT)
   list(APPEND LIBRARIES bluetooth)
 endif()
+
+if (BUILD_USBMUXD_SUPPORT) 
+  list(APPEND LIBRARIES usbmuxd) 
+endif()
+
 if (BUILD_USB_SUPPORT)
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
   list(APPEND LIBRARIES Libusb-1.0.16)

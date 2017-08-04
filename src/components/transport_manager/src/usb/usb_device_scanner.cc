@@ -58,7 +58,7 @@ class AoaInitSequence : public UsbControlTransferSequence {
 void UsbDeviceScanner::OnDeviceArrived(PlatformUsbDevice* device) {
   LOG4CXX_AUTO_TRACE(logger_);
   if (IsAppleDevice(device)) {
-    SupportedDeviceFound(device);
+   // SupportedDeviceFound(device);
   } else {
     if (IsGoogleAccessory(device)) {
       SupportedDeviceFound(device);

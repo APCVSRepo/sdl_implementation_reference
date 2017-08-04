@@ -37,6 +37,8 @@
 #include "transport_manager/transport_adapter/connection.h"
 #include "protocol/common.h"
 
+#include "transport_manager/usbmuxd/usbmuxd_device.h"
+
 namespace transport_manager {
 namespace transport_adapter {
 
@@ -204,6 +206,9 @@ class TransportAdapterController {
                               const ApplicationHandle& app_handle,
                               ::protocol_handler::RawMessagePtr message,
                               const DataSendError&) = 0;
+  
+ virtual  bool IsSameDevice(char* udid)= 0;
+ virtual  void RemoveUnFindDevice(std::vector<DeviceUID> DeviceList)= 0; 
 };
 
 }  // namespace transport_adapter

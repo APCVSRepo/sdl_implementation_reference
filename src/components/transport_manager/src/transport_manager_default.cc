@@ -40,6 +40,8 @@
 #include "transport_manager/bluetooth/bluetooth_transport_adapter.h"
 #endif
 
+#include "transport_manager/usbmuxd/usbmuxd_transport_adapter.h"
+
 #if defined(USB_SUPPORT)
 #include "transport_manager/usb/usb_aoa_adapter.h"
 #endif  // USB_SUPPORT
@@ -72,6 +74,18 @@ int TransportManagerDefault::Init(resumption::LastState& last_state) {
   AddTransportAdapter(ta_bluetooth);
   ta_bluetooth = NULL;
 #endif
+
+  transport_adapter::TransportAdapterImpl* ta_usbmuxd =
+  	new transport_adapter::UsbmuxdTransportAdapter(0,last_state,
+  												 get_settings());
+  #ifdef TELEMETRY_MONITOR
+  if (metric_observer_) {
+    ta_usbmuxd->SetTelemetryObserver(metric_observer_);
+  }
+  #endif  // TELEMETRY_MONITOR
+  AddTransportAdapter(ta_usbmuxd);
+  
+  ta_usbmuxd = NULL;
 
   const uint16_t port = get_settings().transport_manager_tcp_adapter_port();
   transport_adapter::TransportAdapterImpl* ta_tcp =
