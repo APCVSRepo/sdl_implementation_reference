@@ -840,8 +840,8 @@ SDL.SDLModel = Em.Object.create({
         SDL.PopUp.create().appendTo('body').popupActivate(text, function(result){
             if (result) {
 
-                SDL.SDLController.getApplicationModel(request.params.appID).set('navigationStream', request.params.url);
-                SDL.SDLModel.playVideo(request.params.appID);
+                // SDL.SDLController.getApplicationModel(request.params.appID).set('navigationStream', request.params.url);
+                // SDL.SDLModel.playVideo(request.params.appID);
 
                 FFW.Navigation.sendNavigationResult(
                     SDL.SDLModel.resultCode["SUCCESS"],
@@ -894,15 +894,15 @@ SDL.SDLModel = Em.Object.create({
      *
      * @param {Object}
      */
-    startAudioStream: function(params) {
+    startAudioStream: function(request) {
 
         var text = "Would you like to start Audio stream?";
 
         SDL.PopUp.create().appendTo('body').popupActivate(text, function(result){
             if (result) {
 
-                SDL.SDLController.getApplicationModel(params.appID).set('navigationAudioStream', params.url);
-                SDL.StreamAudio.play(params.url);
+                // SDL.SDLController.getApplicationModel(request.appID).set('navigationAudioStream', request.url);
+                // SDL.StreamAudio.play(request.url);
 
                 FFW.Navigation.sendNavigationResult(
                     SDL.SDLModel.resultCode["SUCCESS"],
