@@ -126,7 +126,7 @@ std::string hex_data(const unsigned char* const buffer,
 
 void UsbConnection::OnInTransfer(libusb_transfer* transfer) {
   LOG4CXX_TRACE(logger_, "enter with Libusb_transfer*: " << transfer);
-  if (transfer->status == LIBUSB_TRANSFER_COMPLETED) {
+  if (transfer->status == LIBUSB_TRANSFER_COMPLETED && transfer->actual_length > 0) {
     LOG4CXX_DEBUG(logger_,
                   "USB incoming transfer, size:"
                       << transfer->actual_length << ", data:"
