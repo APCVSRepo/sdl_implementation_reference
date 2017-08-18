@@ -94,7 +94,6 @@ inline bool IsGoogleAccessory(const PlatformUsbDevice* device) {
 }
 
 inline bool IsAppleIAPDevice(const PlatformUsbDevice* device) {
-	printf("device->product_id:0x%x\n",device->product_id());
   return (kAppleVid == device->vendor_id()) &&
          ((kApplePid1 == device->product_id()) ||
           (kApplePid2 == device->product_id()) ||

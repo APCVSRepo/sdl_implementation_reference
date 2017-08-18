@@ -134,6 +134,9 @@ void UsbConnection::OnInTransfer(libusb_transfer* transfer) {
     ::protocol_handler::RawMessagePtr data(new protocol_handler::RawMessage(
         0, 0, in_buffer_, transfer->actual_length));
     controller_->DataReceiveDone(device_uid_, app_handle_, data);
+  } else if(transfer->status == LIBUSB_TRANSFER_STALL){
+    AbortConnection();
+    return;
   } else {
     LOG4CXX_ERROR(logger_,
                   "USB incoming transfer failed: "
@@ -168,6 +171,9 @@ void UsbConnection::PopOutMessage() {
 }
 
 bool UsbConnection::PostOutTransfer() {
+  if (disconnecting_) {
+    return false;
+  }
   LOG4CXX_TRACE(logger_, "enter");
   out_transfer_ = libusb_alloc_transfer(0);
   if (0 == out_transfer_) {
@@ -200,11 +206,14 @@ bool UsbConnection::PostOutTransfer() {
 }
 
 void UsbConnection::OnOutTransfer(libusb_transfer* transfer) {
+  if (disconnecting_) {
+    return ;
+  }
   LOG4CXX_TRACE(logger_, "enter with  Libusb_transfer*: " << transfer);
   sync_primitives::AutoLock locker(out_messages_mutex_);
   if (transfer->status == LIBUSB_TRANSFER_COMPLETED) {
     bytes_sent_ += transfer->actual_length;
-    if (bytes_sent_ == current_out_message_->data_size()) {
+    if (current_out_message_.valid() && bytes_sent_ == current_out_message_->data_size()) {
       LOG4CXX_DEBUG(
           logger_,
           "USB out transfer, data sent: " << current_out_message_.get());
@@ -212,12 +221,14 @@ void UsbConnection::OnOutTransfer(libusb_transfer* transfer) {
       PopOutMessage();
     }
   } else {
-    LOG4CXX_ERROR(
-        logger_,
-        "USB out transfer failed: " << libusb_error_name(transfer->status));
-    controller_->DataSendFailed(
-        device_uid_, app_handle_, current_out_message_, DataSendError());
-    PopOutMessage();
+    if (current_out_message_.valid() && bytes_sent_ == current_out_message_->data_size()) {
+      LOG4CXX_ERROR(
+          logger_,
+          "USB out transfer failed: " << libusb_error_name(transfer->status));
+      controller_->DataSendFailed(
+          device_uid_, app_handle_, current_out_message_, DataSendError());
+      PopOutMessage();
+    }
   }
   if (!current_out_message_.valid()) {
     libusb_free_transfer(transfer);
@@ -281,6 +292,9 @@ void UsbConnection::Finalise() {
     }
   }
   while (waiting_in_transfer_cancel_ || waiting_out_transfer_cancel_) {
+    if (disconnecting_) {
+      break;
+    }
     pthread_yield();
   }
   LOG4CXX_TRACE(logger_, "exit");

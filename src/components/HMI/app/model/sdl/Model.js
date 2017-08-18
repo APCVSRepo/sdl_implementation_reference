@@ -894,6 +894,7 @@ SDL.SDLModel = Em.Object.create({
      *
      * @param {Object}
      */
+    //startAudioStream: function(params) {
     startAudioStream: function(request) {
 
         var text = "Would you like to start Audio stream?";
