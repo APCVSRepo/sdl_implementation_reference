@@ -691,8 +691,9 @@ SDL.SDLModel = Em.Object.create({
                 events[i].id  = event.originalEvent.changedTouches ? event.originalEvent.changedTouches[i].identifier : 0;
                 events[i].c[0].x = event.originalEvent.changedTouches ? event.originalEvent.changedTouches[i].pageX : event.originalEvent.pageX;
                 events[i].c[0].y = event.originalEvent.changedTouches ? event.originalEvent.changedTouches[i].pageY : event.originalEvent.pageY;
-                events[i].ts  = [event.timeStamp - SDL.SDLModel.timeStamp];
-
+                //events[i].ts  = [event.timeStamp - SDL.SDLModel.timeStamp];
+                nnowtime = new Date().getTime();
+                events[i].ts  = [nnowtime - SDL.SDLModel.timeStamp];
 
 
             }
