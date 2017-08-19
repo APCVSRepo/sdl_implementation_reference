@@ -640,7 +640,9 @@ add_custom_target(install-3rd_party
   WORKING_DIRECTORY ${3RD_PARTY_BINARY_DIRECTORY}
 )
 
+if(NOT FIREFLY_RK3288)
 find_package(OpenSSL REQUIRED)
+endif()
 if(ENABLE_LOG)
   include_directories ( ${LOG4CXX_INCLUDE_DIRECTORY} )
 endif()
