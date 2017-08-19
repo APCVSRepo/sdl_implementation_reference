@@ -39,12 +39,6 @@ include_directories (
     ${LOG4CXX_INCLUDE_DIRECTORY}
 )
 
-if (FIREFLY_RK3288)
-include_directories (
-    ${OPENSSL_INCLUDE_DIRECTORY}
-)
-endif()
-
 set (SOURCES
     ${CH_SRC_DIR}/connection_handler_impl.cc
     ${CH_SRC_DIR}/connection.cc

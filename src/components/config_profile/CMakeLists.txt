@@ -35,12 +35,6 @@ include_directories (
   ${LOG4CXX_INCLUDE_DIRECTORY}
 )
 
-if (FIREFLY_RK3288)
-include_directories (
-    ${OPENSSL_INCLUDE_DIRECTORY}
-)
-endif()
-
 set (SOURCES
     ${COMPONENTS_DIR}/config_profile/src/profile.cc
     ${COMPONENTS_DIR}/config_profile/src/ini_file.cc

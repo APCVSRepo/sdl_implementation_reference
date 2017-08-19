@@ -41,10 +41,6 @@ include_directories(
   ${APR_INCLUDE_DIRECTORY}
 )
 
-if (FIREFLY_RK3288)
-include_directories(${OPENSSL_INCLUDE_DIRECTORY})
-endif()
-
 set (SOURCES
   ${COMPONENTS_DIR}/security_manager/src/security_manager_impl.cc
   ${COMPONENTS_DIR}/security_manager/src/security_query.cc

@@ -57,12 +57,6 @@ include_directories (
   ${LOG4CXX_INCLUDE_DIRECTORY}
 )
 
-if (FIREFLY_RK3288)
-include_directories (
-    ${OPENSSL_INCLUDE_DIRECTORY}
-)
-endif()
-
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   include_directories(
     ${COMPONENTS_DIR}/utils/include/utils/sqlite_wrapper/
