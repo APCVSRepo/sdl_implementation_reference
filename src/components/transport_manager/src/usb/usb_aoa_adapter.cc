@@ -33,6 +33,13 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <fcntl.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <pthread.h>
+#include <unistd.h>
+#include <iomanip>
+
 #include "transport_manager/usb/usb_aoa_adapter.h"
 #include "transport_manager/usb/usb_device_scanner.h"
 #include "transport_manager/usb/usb_connection_factory.h"
@@ -55,9 +62,40 @@ UsbAoaAdapter::UsbAoaAdapter(resumption::LastState& last_state,
   static_cast<UsbDeviceScanner*>(device_scanner_)->SetUsbHandler(usb_handler_);
   static_cast<UsbConnectionFactory*>(server_connection_factory_)
       ->SetUsbHandler(usb_handler_);
+
+  char named_pipe_video_path_[100];
+  memset(named_pipe_video_path_,0,100);
+  strcpy(named_pipe_video_path_,"./storage/video_stream_pipe");
+  mkfifo(named_pipe_video_path_, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+  pipe_video_fd_ = open(named_pipe_video_path_, O_RDWR, 0);
+  if (-1 == pipe_video_fd_) {
+     LOG4CXX_ERROR(logger_,"Cannot open video pipe");
+  }
+
+  char named_pipe_audio_path_[100];
+  memset(named_pipe_audio_path_,0,100);
+  strcpy(named_pipe_audio_path_,"./storage/audio_stream_pipe");
+  mkfifo(named_pipe_audio_path_, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+  pipe_audio_fd_ = open(named_pipe_audio_path_, O_RDWR, 0);
+  if (-1 == pipe_audio_fd_) {
+    LOG4CXX_ERROR(logger_,"Cannot open audeo pipe");
+  }
+
 }
 
-UsbAoaAdapter::~UsbAoaAdapter() {}
+UsbAoaAdapter::~UsbAoaAdapter() {
+  char named_pipe_video_path_[100];
+  memset(named_pipe_video_path_,0,100);
+  strcpy(named_pipe_video_path_,"./storage/video_stream_pipe");
+  unlink(named_pipe_video_path_);
+  close(pipe_video_fd_);
+
+  char named_pipe_audio_path_[100];
+  memset(named_pipe_audio_path_,0,100);
+  strcpy(named_pipe_audio_path_,"./storage/audio_stream_pipe");
+  unlink(named_pipe_audio_path_);
+  close(pipe_audio_fd_);
+}
 
 DeviceType UsbAoaAdapter::GetDeviceType() const {
   return PASA_AOA;

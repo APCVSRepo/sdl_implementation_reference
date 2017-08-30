@@ -209,6 +209,10 @@ class TransportAdapterController {
   
  virtual  bool IsSameDevice(char* udid)= 0;
  virtual  void RemoveUnFindDevice(std::vector<DeviceUID> DeviceList)= 0; 
+
+public:
+  int32_t pipe_video_fd_;
+  int32_t pipe_audio_fd_;
 };
 
 }  // namespace transport_adapter

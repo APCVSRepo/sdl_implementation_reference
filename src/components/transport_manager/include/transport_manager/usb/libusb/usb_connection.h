@@ -44,6 +44,71 @@
 namespace transport_manager {
 namespace transport_adapter {
 
+#define MAXBUFFERLEN 2097152 //2M
+#define EACHFRAMEDATALEN 655360 //640k
+const uint8_t PROTOCOL_HEADER_V2_SIZE = 12;
+
+enum {
+    DATA_ERROR = -2,
+    DATA_LESS = -1, 
+    DATA_UNSTREAM = 0,
+    DATA_CONTROLSTREAM = 1,
+    DATA_STREAM = 2
+};
+
+enum ServiceType {
+  kAudio = 0x0A,
+  kMobileNav = 0x0B
+};
+
+enum {
+  FRAME_DATA_HEART_BEAT = 0x00,
+  FRAME_DATA_START_SERVICE = 0x01,
+  FRAME_DATA_START_SERVICE_ACK = 0x02,
+  FRAME_DATA_START_SERVICE_NACK = 0x03,
+  FRAME_DATA_END_SERVICE = 0x04,
+  FRAME_DATA_END_SERVICE_ACK = 0x05,
+  FRAME_DATA_END_SERVICE_NACK = 0x06,
+  FRAME_DATA_SERVICE_DATA_ACK = 0xFE,
+  FRAME_DATA_HEART_BEAT_ACK = 0xFF,
+  FRAME_DATA_SINGLE = 0x00,
+  FRAME_DATA_FIRST = 0x00,
+  FRAME_DATA_LAST_CONSECUTIVE = 0x00,
+  FRAME_DATA_MAX_CONSECUTIVE = 0xFF,
+  FRAME_DATA_MAX_VALUE = 0xFF
+};
+
+enum {
+  FRAME_TYPE_CONTROL = 0x00,
+  FRAME_TYPE_SINGLE = 0x01,
+  FRAME_TYPE_FIRST = 0x02,
+  FRAME_TYPE_CONSECUTIVE = 0x03,
+  FRAME_TYPE_MAX_VALUE = 0x07
+};
+
+enum {
+  PROTOCOL_VERSION_1 = 0x01,
+  PROTOCOL_VERSION_2 = 0x02,
+  PROTOCOL_VERSION_3 = 0x03,
+  PROTOCOL_VERSION_4 = 0x04,
+  PROTOCOL_VERSION_MAX = 0x0F
+};
+
+typedef struct{
+    uint8_t version;
+    uint8_t frameType;
+    uint8_t serviceType;
+    uint8_t frameData;
+    uint32_t messageId;
+    uint32_t dataSize;
+}Frame;
+
+typedef struct{
+    unsigned char sbuffer[EACHFRAMEDATALEN];
+    int nbufferlen;
+}FRAMEDATALIST;
+
+
 class UsbConnection : public Connection {
  public:
   UsbConnection(const DeviceUID& device_uid,
@@ -90,8 +155,34 @@ class UsbConnection : public Connection {
   bool disconnecting_;
   bool waiting_in_transfer_cancel_;
   bool waiting_out_transfer_cancel_;
+
   friend void InTransferCallback(struct libusb_transfer*);
   friend void OutTransferCallback(struct libusb_transfer*);
+
+private:
+  class SocketConnectionDelegate : public threads::ThreadDelegate {
+   public:
+    explicit SocketConnectionDelegate(UsbConnection* connection);
+    void threadMain() OVERRIDE;
+    void exitThreadMain() OVERRIDE;
+
+   private:
+    UsbConnection* connection_;
+  };
+  void threadMain();
+  int deserialize(unsigned char *in_buffer,int nrecvlen,Frame &frame,int &nheadlen);
+  int StartStreamer(int nrecvlen);
+  bool WriteDataToPipe(unsigned char *buffer, int nbufferlen);
+  
+  threads::Thread* thread_;
+  std::list<FRAMEDATALIST>framemessage_;
+  FRAMEDATALIST current_frame_message_;
+  bool is_video_start;
+  bool is_audio_start;
+  int nvideoremainbufferlen;
+  unsigned char *svideowritebuffer;
+  int nvideoreadywritelen;
+  sync_primitives::Lock mobile_messages_mutex_;
 };
 }  // namespace transport_adapter
 }  // namespace transport_manager

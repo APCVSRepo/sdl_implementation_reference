@@ -48,6 +48,37 @@ namespace transport_adapter {
 
 CREATE_LOGGERPTR_GLOBAL(logger_, "TransportManager")
 
+inline uint32_t read_be_uint32(const uint8_t* const data) {
+  uint32_t value = data[3];
+  value += (data[2] << 8);
+  value += (data[1] << 16);
+  value += (data[0] << 24);
+  return value;
+}
+
+inline int mystrstr(unsigned char *buffer, int nbufferlen) {
+  int nindex = 0, num = 0, noffset = 0;
+  if(nbufferlen < 8)
+    return 0; 
+ 
+  while((nindex + 4) <= nbufferlen){
+    if(buffer[nindex] == 0x00 && buffer[nindex + 1] == 0x00
+    && buffer[nindex + 2] == 0x00 && buffer[nindex + 3] == 0x01){
+      noffset = nindex;
+      num ++ ;
+      if(num == 2)
+        break;
+    } 
+    nindex ++;
+  }
+  
+  if(num == 2){
+    return noffset;
+  }else{
+    return 0;
+  }
+}
+
 UsbConnection::UsbConnection(const DeviceUID& device_uid,
                              const ApplicationHandle& app_handle,
                              TransportAdapterController* controller,
@@ -71,13 +102,33 @@ UsbConnection::UsbConnection(const DeviceUID& device_uid,
     , bytes_sent_(0)
     , disconnecting_(false)
     , waiting_in_transfer_cancel_(false)
-    , waiting_out_transfer_cancel_(false) {}
+    , waiting_out_transfer_cancel_(false) 
+    , thread_(NULL)
+    , framemessage_()
+    , current_frame_message_()
+    , is_video_start(false)
+    , is_audio_start(false)
+    , nvideoremainbufferlen(0)
+    , nvideoreadywritelen(0){
+      svideowritebuffer = new unsigned char[MAXBUFFERLEN];
+      const std::string thread_name = std::string("usb ") + device_uid_;
+      thread_ = threads::CreateThread(thread_name.c_str(),
+                                  new SocketConnectionDelegate(this));
+    }
 
 UsbConnection::~UsbConnection() {
   LOG4CXX_TRACE(logger_, "enter with this" << this);
   Finalise();
+  thread_->join();
+  delete thread_->delegate();
+  threads::DeleteThread(thread_);
   libusb_free_transfer(in_transfer_);
+  is_video_start = false, is_audio_start = false;
+  delete []svideowritebuffer;
   delete[] in_buffer_;
+  while(!framemessage_.empty()){
+    framemessage_.pop_front();
+  }
   LOG4CXX_TRACE(logger_, "exit");
 }
 
@@ -124,6 +175,173 @@ std::string hex_data(const unsigned char* const buffer,
   return hexdata.str();
 }
 
+int UsbConnection::deserialize(unsigned char *in_buffer,int nrecvlen,Frame &frame,int &nheadlen){
+  if(nrecvlen < 8){
+    LOG4CXX_ERROR(logger_,"deserialize DATA_LESS failed: " << nheadlen);
+    return DATA_LESS;
+  }
+
+  frame.version = in_buffer[0] >> 4u;
+  frame.frameType = in_buffer[0] & 0x07u;
+  frame.serviceType = in_buffer[1];
+  frame.frameData = in_buffer[2];
+  frame.dataSize = read_be_uint32(in_buffer + 4);
+
+  switch (frame.version) {
+    case PROTOCOL_VERSION_2:
+    case PROTOCOL_VERSION_3:
+    case PROTOCOL_VERSION_4: {
+      if (nrecvlen < PROTOCOL_HEADER_V2_SIZE) {
+        LOG4CXX_DEBUG(logger_,"Message size less " << PROTOCOL_HEADER_V2_SIZE << " bytes");
+        return DATA_LESS;
+      }
+      frame.messageId = read_be_uint32(in_buffer + 8);
+      nheadlen = 12;
+      break;
+    }
+    default:
+      LOG4CXX_WARN(logger_, "Unknown version:" << static_cast<int>(frame.version));
+      frame.messageId = 0;
+      nheadlen = 8;
+      break;
+  }
+
+  switch (frame.frameType){
+    case FRAME_TYPE_CONTROL:
+      if(frame.serviceType == kAudio){
+        if(frame.frameData == FRAME_DATA_START_SERVICE){
+          is_audio_start = true;
+        }else if(frame.frameData == FRAME_DATA_END_SERVICE){
+          is_audio_start = false;
+        }
+      }else if(frame.serviceType == kMobileNav){
+        if(frame.frameData == FRAME_DATA_START_SERVICE){
+           is_video_start = true;
+        }else if(frame.frameData == FRAME_DATA_END_SERVICE){
+          is_video_start = false;
+        }
+      }
+
+      return DATA_CONTROLSTREAM;
+    case FRAME_TYPE_SINGLE:
+      if(frame.serviceType == kAudio){
+        if(!is_audio_start){
+          return DATA_ERROR;
+        }
+      }else if(frame.serviceType == kMobileNav){
+        if(!is_video_start){
+          return DATA_ERROR;
+        }
+      }
+      return DATA_STREAM;
+    default:
+      return DATA_UNSTREAM;
+  } 
+}
+
+bool UsbConnection::WriteDataToPipe(unsigned char *buffer, int nbufferlen){
+  FILE*fp = fopen("./pipe.txt","a+");
+  fwrite(buffer,nbufferlen,1,fp);
+  fclose(fp);
+  int nvideoremainwritelen = 0;
+  int nrealbufferlen = mystrstr(svideowritebuffer,nvideoreadywritelen);
+  if(nrealbufferlen != 0 && !disconnecting_){
+    if(nrealbufferlen <= EACHFRAMEDATALEN){
+        FRAMEDATALIST message;
+        memcpy(message.sbuffer,svideowritebuffer,nrealbufferlen);
+        message.nbufferlen = nrealbufferlen;
+        sync_primitives::AutoLock locker(mobile_messages_mutex_);
+        framemessage_.push_back(message);
+    }
+   
+    nvideoremainwritelen =  nvideoreadywritelen - nrealbufferlen;
+    if(nvideoremainwritelen > 0){
+      memset(svideowritebuffer,0,nrealbufferlen);
+      memcpy(svideowritebuffer,svideowritebuffer + nrealbufferlen,nvideoremainwritelen);
+      memset(svideowritebuffer + nvideoremainwritelen,0,MAXBUFFERLEN - nvideoremainwritelen);
+      nvideoreadywritelen = nvideoremainwritelen;
+    }
+  }
+  
+  memcpy(svideowritebuffer + nvideoreadywritelen,buffer,nbufferlen);
+  nvideoreadywritelen += nbufferlen;
+  return true;
+}
+
+int UsbConnection::StartStreamer(int nrecvlen){
+  int nbufferlen = 0, nrealbufferlen = 0, nindex = 0,  nheadlen = 0;
+  int nframelen = nrecvlen;
+
+  Frame frame;
+  memset(&frame,0,sizeof(Frame));
+
+  if(!is_video_start){
+    return deserialize(in_buffer_,nrecvlen,frame,nheadlen);
+  }else{
+    nindex = 0;
+    if(nvideoremainbufferlen > 0){
+      if(nvideoremainbufferlen >= nframelen){
+        WriteDataToPipe(in_buffer_,nframelen);
+        nvideoremainbufferlen -= nframelen;
+        nindex = nframelen;
+      }else{
+        WriteDataToPipe(in_buffer_,nvideoremainbufferlen);
+        nindex = nvideoremainbufferlen;
+        nvideoremainbufferlen = 0;
+      }
+    }
+
+    while(nindex + 8 <= nframelen){
+      memset(&frame,0,sizeof(Frame));
+      int analydata = deserialize(in_buffer_ + nindex,nrecvlen - nindex,frame,nheadlen);
+      nindex += nheadlen;
+      if(analydata != DATA_STREAM){
+        if(analydata != DATA_CONTROLSTREAM){
+          LOG4CXX_ERROR(logger_,"Recv data error");
+        }
+       
+        return analydata;
+      }
+
+      nbufferlen = frame.dataSize;
+      if((nbufferlen + nindex) > nframelen){
+        nrealbufferlen = nframelen - nindex;
+        nvideoremainbufferlen = nbufferlen - nrealbufferlen;
+      }else{
+        nrealbufferlen = nbufferlen;
+      }
+  
+      WriteDataToPipe(in_buffer_ + nindex,nrealbufferlen);
+      nindex += nrealbufferlen;
+    }
+  }
+
+  return DATA_STREAM;
+}
+
+void UsbConnection::threadMain() {
+  while(!disconnecting_){
+    bool ishavemessage = false;
+    {
+        sync_primitives::AutoLock locker(mobile_messages_mutex_);
+        if(!framemessage_.empty()){
+          current_frame_message_ = framemessage_.front();
+          framemessage_.pop_front();
+          ishavemessage = true;
+        }
+    }
+    if(ishavemessage){
+      ssize_t ret = write(controller_->pipe_video_fd_, current_frame_message_.sbuffer, current_frame_message_.nbufferlen);
+      if (-1 == ret) {
+        LOG4CXX_ERROR(logger_,"Failed writing data to pipe ");
+        return ;
+      }
+    } else{
+      usleep(0);
+    }
+  }
+}
+
 void UsbConnection::OnInTransfer(libusb_transfer* transfer) {
   LOG4CXX_TRACE(logger_, "enter with Libusb_transfer*: " << transfer);
   if (transfer->status == LIBUSB_TRANSFER_COMPLETED && transfer->actual_length > 0) {
@@ -131,9 +349,12 @@ void UsbConnection::OnInTransfer(libusb_transfer* transfer) {
                   "USB incoming transfer, size:"
                       << transfer->actual_length << ", data:"
                       << hex_data(transfer->buffer, transfer->actual_length));
-    ::protocol_handler::RawMessagePtr data(new protocol_handler::RawMessage(
+    int frametype = StartStreamer(transfer->actual_length);
+    if((is_video_start && frametype == DATA_CONTROLSTREAM) || (!is_video_start)){
+      ::protocol_handler::RawMessagePtr data(new protocol_handler::RawMessage(
         0, 0, in_buffer_, transfer->actual_length));
-    controller_->DataReceiveDone(device_uid_, app_handle_, data);
+      controller_->DataReceiveDone(device_uid_, app_handle_, data);
+    }
   } else if(transfer->status == LIBUSB_TRANSFER_STALL){
     AbortConnection();
     return;
@@ -316,6 +537,11 @@ TransportAdapter::Error UsbConnection::Disconnect() {
 
 bool UsbConnection::Init() {
   LOG4CXX_TRACE(logger_, "enter");
+  if (!thread_->start()) {
+    LOG4CXX_ERROR(logger_, "thread creation failed");
+    return TransportAdapter::FAIL;
+  }
+
   if (!FindEndpoints()) {
     LOG4CXX_ERROR(logger_, "EndPoints was not found");
     LOG4CXX_TRACE(logger_, "exit with FALSE. Condition: !FindEndpoints()");
@@ -387,5 +613,20 @@ bool UsbConnection::FindEndpoints() {
   LOG4CXX_TRACE(logger_, "exit with " << (result ? "TRUE" : "FALSE"));
   return result;
 }
+
+UsbConnection::SocketConnectionDelegate::SocketConnectionDelegate(
+    UsbConnection* connection)
+    : connection_(connection) {}
+
+void UsbConnection::SocketConnectionDelegate::threadMain() {
+  LOG4CXX_AUTO_TRACE(logger_);
+  DCHECK(connection_);
+  connection_->threadMain();
+}
+
+void UsbConnection::SocketConnectionDelegate::exitThreadMain() {
+  LOG4CXX_AUTO_TRACE(logger_);
+}
+
 }  // namespace transport_adapter
 }  // namespace transport_manager
