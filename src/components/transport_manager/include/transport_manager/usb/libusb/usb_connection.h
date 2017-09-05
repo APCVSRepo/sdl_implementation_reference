@@ -172,7 +172,7 @@ private:
   void threadMain();
   int deserialize(unsigned char *in_buffer,int nrecvlen,Frame &frame,int &nheadlen);
   int StartStreamer(int nrecvlen);
-  bool WriteDataToPipe(unsigned char *buffer, int nbufferlen);
+  bool WriteDataToQueue(unsigned char *buffer, int nbufferlen);
   
   threads::Thread* thread_;
   std::list<FRAMEDATALIST>framemessage_;

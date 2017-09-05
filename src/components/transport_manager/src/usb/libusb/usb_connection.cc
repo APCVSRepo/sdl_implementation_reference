@@ -239,10 +239,7 @@ int UsbConnection::deserialize(unsigned char *in_buffer,int nrecvlen,Frame &fram
   } 
 }
 
-bool UsbConnection::WriteDataToPipe(unsigned char *buffer, int nbufferlen){
-  FILE*fp = fopen("./pipe.txt","a+");
-  fwrite(buffer,nbufferlen,1,fp);
-  fclose(fp);
+bool UsbConnection::WriteDataToQueue(unsigned char *buffer, int nbufferlen){
   int nvideoremainwritelen = 0;
   int nrealbufferlen = mystrstr(svideowritebuffer,nvideoreadywritelen);
   if(nrealbufferlen != 0 && !disconnecting_){
@@ -281,11 +278,11 @@ int UsbConnection::StartStreamer(int nrecvlen){
     nindex = 0;
     if(nvideoremainbufferlen > 0){
       if(nvideoremainbufferlen >= nframelen){
-        WriteDataToPipe(in_buffer_,nframelen);
+        WriteDataToQueue(in_buffer_,nframelen);
         nvideoremainbufferlen -= nframelen;
         nindex = nframelen;
       }else{
-        WriteDataToPipe(in_buffer_,nvideoremainbufferlen);
+        WriteDataToQueue(in_buffer_,nvideoremainbufferlen);
         nindex = nvideoremainbufferlen;
         nvideoremainbufferlen = 0;
       }
@@ -311,7 +308,7 @@ int UsbConnection::StartStreamer(int nrecvlen){
         nrealbufferlen = nbufferlen;
       }
   
-      WriteDataToPipe(in_buffer_ + nindex,nrealbufferlen);
+      WriteDataToQueue(in_buffer_ + nindex,nrealbufferlen);
       nindex += nrealbufferlen;
     }
   }
@@ -354,7 +351,7 @@ void UsbConnection::OnInTransfer(libusb_transfer* transfer) {
       ::protocol_handler::RawMessagePtr data(new protocol_handler::RawMessage(
         0, 0, in_buffer_, transfer->actual_length));
       controller_->DataReceiveDone(device_uid_, app_handle_, data);
-    }
+    } 
   } else if(transfer->status == LIBUSB_TRANSFER_STALL){
     AbortConnection();
     return;
