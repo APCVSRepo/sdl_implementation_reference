@@ -627,18 +627,10 @@ void TransportManagerImpl::RemoveConnection(
        it != connections_.end();
        ++it) {
     if (it->id == id) {
-      if (transport_adapter){
-        if(transport_adapter->GetDeviceType() == transport_manager::transport_adapter::USBMUXD){
-          transport_adapter->RemoveFinalizedConnection(it->device,it->application);
-          connections_.erase(it);
-           break;
-        }
-      }
-
-      connections_.erase(it);
       if (transport_adapter) {
         transport_adapter->RemoveFinalizedConnection(it->device,it->application);
       }
+      connections_.erase(it);
       break;
     }
   }
