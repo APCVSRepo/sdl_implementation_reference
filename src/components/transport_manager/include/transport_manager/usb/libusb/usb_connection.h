@@ -35,6 +35,13 @@
 
 #include <list>
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+#include <sys/time.h>
+#include <time.h>
+
 #include "utils/lock.h"
 
 #include "transport_manager/transport_adapter/transport_adapter_controller.h"
@@ -44,6 +51,11 @@
 namespace transport_manager {
 namespace transport_adapter {
 
+#ifndef REMOVEQUEUE
+#define REMOVEQUEUE
+#endif
+
+#ifdef REMOVEQUEUE
 #define MAXBUFFERLEN 2097152 //2M
 #define EACHFRAMEDATALEN 655360 //640k
 const uint8_t PROTOCOL_HEADER_V2_SIZE = 12;
@@ -107,7 +119,7 @@ typedef struct{
     unsigned char sbuffer[EACHFRAMEDATALEN];
     int nbufferlen;
 }FRAMEDATALIST;
-
+#endif
 
 class UsbConnection : public Connection {
  public:
@@ -155,10 +167,10 @@ class UsbConnection : public Connection {
   bool disconnecting_;
   bool waiting_in_transfer_cancel_;
   bool waiting_out_transfer_cancel_;
-
   friend void InTransferCallback(struct libusb_transfer*);
   friend void OutTransferCallback(struct libusb_transfer*);
 
+#ifdef REMOVEQUEUE
 private:
   class SocketConnectionDelegate : public threads::ThreadDelegate {
    public:
@@ -173,7 +185,9 @@ private:
   int deserialize(unsigned char *in_buffer,int nrecvlen,Frame &frame,int &nheadlen);
   int StartStreamer(int nrecvlen);
   bool WriteDataToQueue(unsigned char *buffer, int nbufferlen);
-  
+  int mystrstr(unsigned char *buffer, int nbufferlen);
+  uint32_t read_be_uint32(const uint8_t* const data);
+
   threads::Thread* thread_;
   std::list<FRAMEDATALIST>framemessage_;
   FRAMEDATALIST current_frame_message_;
@@ -182,7 +196,10 @@ private:
   int nvideoremainbufferlen;
   unsigned char *svideowritebuffer;
   int nvideoreadywritelen;
+  int nvideoreadyscanlen;
+  int nvideoreadyscannum;
   sync_primitives::Lock mobile_messages_mutex_;
+#endif
 };
 }  // namespace transport_adapter
 }  // namespace transport_manager
