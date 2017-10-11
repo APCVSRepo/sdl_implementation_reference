@@ -199,6 +199,7 @@ private:
   int nvideoreadyscanlen;
   int nvideoreadyscannum;
   sync_primitives::Lock mobile_messages_mutex_;
+  sync_primitives::ConditionalVariable mobile_messages_mutex_condition_;
 #endif
 };
 }  // namespace transport_adapter

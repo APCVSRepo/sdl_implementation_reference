@@ -104,6 +104,7 @@ UsbConnection::~UsbConnection() {
   while(!framemessage_.empty()){
     framemessage_.pop_front();
   }
+  mobile_messages_mutex_condition_.Broadcast();
   #endif
   libusb_free_transfer(in_transfer_);
   delete[] in_buffer_;
@@ -273,6 +274,7 @@ bool UsbConnection::WriteDataToQueue(unsigned char *buffer, int nbufferlen){
         message.nbufferlen = nrealbufferlen;
         sync_primitives::AutoLock locker(mobile_messages_mutex_);
         framemessage_.push_back(message);  
+	mobile_messages_mutex_condition_.NotifyOne();
     }
     nvideoremainwritelen =  nvideoreadywritelen - nrealbufferlen;
     if(nvideoremainwritelen > 0){
@@ -335,13 +337,11 @@ int UsbConnection::StartStreamer(int nrecvlen){
 void UsbConnection::threadMain() {
   while(!disconnecting_){
     bool ishavemessage = false;
-    {
-        sync_primitives::AutoLock locker(mobile_messages_mutex_);
-        if(!framemessage_.empty()){
-          current_frame_message_ = framemessage_.front();
-          framemessage_.pop_front();
-          ishavemessage = true;
-        }
+    sync_primitives::AutoLock locker(mobile_messages_mutex_);
+    if(!framemessage_.empty()){
+      current_frame_message_ = framemessage_.front();
+      framemessage_.pop_front();
+      ishavemessage = true;
     }
     if(ishavemessage){
       ssize_t ret = write(controller_->pipe_video_fd_, current_frame_message_.sbuffer, current_frame_message_.nbufferlen);
@@ -350,7 +350,7 @@ void UsbConnection::threadMain() {
         return ;
       }
     } else{
-      usleep(0);
+      mobile_messages_mutex_condition_.Wait(locker);
     }
   }
 }
@@ -516,6 +516,9 @@ void UsbConnection::Finalise() {
   {
     sync_primitives::AutoLock locker(out_messages_mutex_);
     disconnecting_ = true;
+    #ifdef REMOVEQUEUE
+      mobile_messages_mutex_condition_.NotifyOne();
+    #endif 
     if (out_transfer_) {
       waiting_out_transfer_cancel_ = true;
       if (LIBUSB_SUCCESS != libusb_cancel_transfer(out_transfer_)) {
