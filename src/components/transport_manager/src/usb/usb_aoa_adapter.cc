@@ -63,20 +63,19 @@ UsbAoaAdapter::UsbAoaAdapter(resumption::LastState& last_state,
   static_cast<UsbConnectionFactory*>(server_connection_factory_)
       ->SetUsbHandler(usb_handler_);
 
-  char named_pipe_video_path_[100];
-  memset(named_pipe_video_path_,0,100);
-  strcpy(named_pipe_video_path_,"./storage/video_stream_pipe");
-  mkfifo(named_pipe_video_path_, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
-  pipe_video_fd_ = open(named_pipe_video_path_, O_RDWR, 0);
+  char _path_[100];
+  memset(_path_,0,100);
+  strcpy(_path_,"./storage/video_stream_pipe");
+  mkfifo(_path_, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+  pipe_video_fd_ = open(_path_, O_RDWR, 0);
   if (-1 == pipe_video_fd_) {
      LOG4CXX_ERROR(logger_,"Cannot open video pipe");
   }
 
-  char named_pipe_audio_path_[100];
-  memset(named_pipe_audio_path_,0,100);
-  strcpy(named_pipe_audio_path_,"./storage/audio_stream_pipe");
-  mkfifo(named_pipe_audio_path_, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
-  pipe_audio_fd_ = open(named_pipe_audio_path_, O_RDWR, 0);
+  memset(_path_,0,100);
+  strcpy(_path_,"./storage/audio_stream_pipe");
+  mkfifo(_path_, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+  pipe_audio_fd_ = open(_path_, O_RDWR, 0);
   if (-1 == pipe_audio_fd_) {
     LOG4CXX_ERROR(logger_,"Cannot open audeo pipe");
   }
@@ -84,16 +83,15 @@ UsbAoaAdapter::UsbAoaAdapter(resumption::LastState& last_state,
 }
 
 UsbAoaAdapter::~UsbAoaAdapter() {
-  char named_pipe_video_path_[100];
-  memset(named_pipe_video_path_,0,100);
-  strcpy(named_pipe_video_path_,"./storage/video_stream_pipe");
-  unlink(named_pipe_video_path_);
+  char _path_[100];
+  memset(_path_,0,100);
+  strcpy(_path_,"./storage/video_stream_pipe");
+  unlink(_path_);
   close(pipe_video_fd_);
 
-  char named_pipe_audio_path_[100];
-  memset(named_pipe_audio_path_,0,100);
-  strcpy(named_pipe_audio_path_,"./storage/audio_stream_pipe");
-  unlink(named_pipe_audio_path_);
+  memset(_path_,0,100);
+  strcpy(_path_,"./storage/audio_stream_pipe");
+  unlink(_path_);
   close(pipe_audio_fd_);
 }
 

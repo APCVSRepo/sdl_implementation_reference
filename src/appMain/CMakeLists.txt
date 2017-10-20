@@ -61,7 +61,6 @@ endif()
 
 if (FIREFLY_RK3288)
 link_directories(
-  ${OPENSSL_LIBS_DIRECTORY}
   ${BLUETOOTH_LIBS_DIRECTORY}
 )
 endif()

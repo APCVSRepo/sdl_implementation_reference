@@ -166,6 +166,7 @@ void ThreadedSocketConnection::threadMain() {
   ConnectError* connect_error = NULL;
   if (!Establish(&connect_error)) {
     LOG4CXX_ERROR(logger_, "Connection Establish failed");
+    Abort();
     delete connect_error;
   }
   LOG4CXX_DEBUG(logger_, "Connection established");
