@@ -33,7 +33,6 @@ set(SMART_OBJECTS_SRC_DIR ${COMPONENTS_DIR}/smart_objects/src)
 
 include_directories (
   include
-  ${COMPONENTS_DIR}/include/
   ${COMPONENTS_DIR}/utils/include/
 )
 

@@ -39,7 +39,6 @@ include_directories (
   ${COMPONENTS_DIR}/policy/include
   ${COMPONENTS_DIR}/rpc_base/include
   ${JSONCPP_INCLUDE_DIRECTORY}
-  ${COMPONENTS_DIR}/include/
   ${COMPONENTS_DIR}/utils/include/
   ${COMPONENTS_DIR}/config_profile/include
   ${LOG4CXX_INCLUDE_DIRECTORY}

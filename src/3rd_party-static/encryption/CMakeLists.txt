@@ -3,16 +3,11 @@ set(ENCRYPTION_INCLUDE_DIRECTORY ${ENCRYPTION_INCLUDE_DIRECTORY} PARENT_SCOPE)
 
 include_directories (
   ./include
-  ${OPENSSL_INCLUDE_DIRECTORY}
 )
 
 set (SOURCES
     ./src/Base64.cpp
     ./src/hashing.cc
-)
-
-link_directories(
-  ${OPENSSL_LIBS_DIRECTORY}
 )
 
 set (LIBRARIES

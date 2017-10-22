@@ -691,8 +691,9 @@ SDL.SDLModel = Em.Object.create({
                 events[i].id  = event.originalEvent.changedTouches ? event.originalEvent.changedTouches[i].identifier : 0;
                 events[i].c[0].x = event.originalEvent.changedTouches ? event.originalEvent.changedTouches[i].pageX : event.originalEvent.pageX;
                 events[i].c[0].y = event.originalEvent.changedTouches ? event.originalEvent.changedTouches[i].pageY : event.originalEvent.pageY;
-                events[i].ts  = [event.timeStamp - SDL.SDLModel.timeStamp];
-
+                //events[i].ts  = [event.timeStamp - SDL.SDLModel.timeStamp];
+                nnowtime = new Date().getTime();
+                events[i].ts  = [nnowtime - SDL.SDLModel.timeStamp];
 
 
             }
@@ -840,8 +841,8 @@ SDL.SDLModel = Em.Object.create({
         SDL.PopUp.create().appendTo('body').popupActivate(text, function(result){
             if (result) {
 
-                SDL.SDLController.getApplicationModel(request.params.appID).set('navigationStream', request.params.url);
-                SDL.SDLModel.playVideo(request.params.appID);
+                // SDL.SDLController.getApplicationModel(request.params.appID).set('navigationStream', request.params.url);
+                // SDL.SDLModel.playVideo(request.params.appID);
 
                 FFW.Navigation.sendNavigationResult(
                     SDL.SDLModel.resultCode["SUCCESS"],
@@ -894,15 +895,16 @@ SDL.SDLModel = Em.Object.create({
      *
      * @param {Object}
      */
-    startAudioStream: function(params) {
+    //startAudioStream: function(params) {
+    startAudioStream: function(request) {
 
         var text = "Would you like to start Audio stream?";
 
         SDL.PopUp.create().appendTo('body').popupActivate(text, function(result){
             if (result) {
 
-                SDL.SDLController.getApplicationModel(params.appID).set('navigationAudioStream', params.url);
-                SDL.StreamAudio.play(params.url);
+                // SDL.SDLController.getApplicationModel(request.appID).set('navigationAudioStream', request.url);
+                // SDL.StreamAudio.play(request.url);
 
                 FFW.Navigation.sendNavigationResult(
                     SDL.SDLModel.resultCode["SUCCESS"],

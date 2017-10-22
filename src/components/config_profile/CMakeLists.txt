@@ -31,10 +31,8 @@
 
 include_directories (
   include
-  ${COMPONENTS_DIR}/include
   ${COMPONENTS_DIR}/utils/include/
   ${LOG4CXX_INCLUDE_DIRECTORY}
-  ${OPENSSL_INCLUDE_DIRECTORY}
 )
 
 set (SOURCES

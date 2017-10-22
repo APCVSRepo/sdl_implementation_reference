@@ -30,7 +30,6 @@
 
 
 include_directories (
-  ${COMPONENTS_DIR}/include/
   ${COMPONENTS_DIR}/utils/include/
   ${COMPONENTS_DIR}/formatters/include
 )

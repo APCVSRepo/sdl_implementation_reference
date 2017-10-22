@@ -59,10 +59,11 @@ if (TELEMETRY_MONITOR)
         TelemetryMonitor)
 endif()
 
+if (FIREFLY_RK3288)
 link_directories(
-  ${OPENSSL_LIBS_DIRECTORY}
   ${BLUETOOTH_LIBS_DIRECTORY}
 )
+endif()
 
 set(LIBRARIES
   MediaManager
@@ -96,6 +97,11 @@ endif()
 if (BUILD_BT_SUPPORT)
   list(APPEND LIBRARIES bluetooth)
 endif()
+
+if (BUILD_USBMUXD_SUPPORT) 
+  list(APPEND LIBRARIES usbmuxd) 
+endif()
+
 if (BUILD_USB_SUPPORT)
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
   list(APPEND LIBRARIES Libusb-1.0.16)
@@ -120,7 +126,6 @@ include_directories (
   ${SecurityManagerIncludeDir}
   ${COMPONENTS_DIR}/security_manager/include
   ${COMPONENTS_DIR}/config_profile/include
-  ${COMPONENTS_DIR}/include/
   ${COMPONENTS_DIR}/utils/include/
   ${COMPONENTS_DIR}/connection_handler/include/
   ${COMPONENTS_DIR}/hmi_message_handler/include
@@ -230,6 +235,19 @@ elseif (${QT_HMI})
     PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ
       GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 endif ()
+
+install(PROGRAMS ${CMAKE_CURRENT_SOURCE_DIR}/install_libs DESTINATION bin)
+install(PROGRAMS ${LOG4CXX_LIBS_DIRECTORY}/liblog4cxx.so DESTINATION bin)
+install(PROGRAMS ${LOG4CXX_LIBS_DIRECTORY}/liblog4cxx.so.10 DESTINATION bin)
+install(PROGRAMS ${LOG4CXX_LIBS_DIRECTORY}/liblog4cxx.so.10.0.0 DESTINATION bin)
+install(PROGRAMS ${APR_UTIL_LIBS_DIRECTORY}/libaprutil-1.so DESTINATION bin)
+install(PROGRAMS ${APR_UTIL_LIBS_DIRECTORY}/libaprutil-1.so.0 DESTINATION bin)
+install(PROGRAMS ${APR_UTIL_LIBS_DIRECTORY}/libaprutil-1.so.0.5.3 DESTINATION bin)
+install(PROGRAMS ${APR_LIBS_DIRECTORY}/libapr-1.so DESTINATION bin)
+install(PROGRAMS ${APR_LIBS_DIRECTORY}/libapr-1.so.0 DESTINATION bin)
+install(PROGRAMS ${APR_LIBS_DIRECTORY}/libapr-1.so.0.5.0 DESTINATION bin)
+install(PROGRAMS ${EXPAT_LIBS_DIRECTORY}/libexpat.so DESTINATION bin)
+
 if (CMAKE_SYSTEM_NAME STREQUAL "QNX")
   install(FILES init_policy.sh DESTINATION bin
     PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ

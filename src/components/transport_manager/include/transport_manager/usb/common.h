@@ -60,7 +60,8 @@ static const uint16_t kApplePid4 = 0x1297;  // iPhone 4
 static const uint16_t kApplePid5 = 0x129a;  // iPad
 static const uint16_t kApplePid6 = 0x129f;  // iPad 2
 static const uint16_t kApplePid7 = 0x12a0;  // iPhone 4S
-static const uint16_t kApplePid8 = 0x12a8;  // iPhone 5
+static const uint16_t kApplePid8 = 0x12a8;  // iPhone 5/6/6plus
+static const uint16_t kApplePid9 = 0x12aa;  // iPhone 5 touch
 
 static const int kUsbConfiguration = 1;
 
@@ -100,7 +101,9 @@ inline bool IsAppleIAPDevice(const PlatformUsbDevice* device) {
           (kApplePid4 == device->product_id()) ||
           (kApplePid5 == device->product_id()) ||
           (kApplePid6 == device->product_id()) ||
-          (kApplePid7 == device->product_id()));
+	      (kApplePid7 == device->product_id()) ||
+	      (kApplePid8 == device->product_id()) ||
+          (kApplePid9 == device->product_id()));
 }
 
 inline bool IsAppleIAP2Device(const PlatformUsbDevice* device) {

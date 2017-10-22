@@ -56,6 +56,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "QNX")
     "ac_cv_sizeof_struct_iovec=8"
   )
 else()
+if (FIREFLY_RK3288)
   set(CONFIGURE_FLAGS 
 	"--host=arm-linux-gnueabihf"
 	"ac_cv_file__dev_zero=yes"
@@ -67,6 +68,9 @@ else()
     	"apr_cv_mutex_robust_shared=no"
 	"LDFLAGS=-lpthread"
 	)
+else()
+  set(CONFIGURE_FLAGS "")
+endif()
 endif()
 
 add_custom_command(OUTPUT ${APR_BUILD_DIRECTORY}/Makefile
@@ -88,15 +92,8 @@ add_custom_target(libapr-1 ALL make
 )
 
 install(
-  DIRECTORY ${APR_LIBS_DIRECTORY}/
-  DESTINATION ${3RD_PARTY_INSTALL_PREFIX_ARCH}/lib
-  USE_SOURCE_PERMISSIONS
-  FILES_MATCHING PATTERN libapr-1.so*
-)
-
-install(
   DIRECTORY ${APR_INCLUDE_DIRECTORY}/
-  DESTINATION ${3RD_PARTY_INSTALL_PREFIX}/include
+  DESTINATION ${APR_BUILD_DIRECTORY}/include
   USE_SOURCE_PERMISSIONS
   FILES_MATCHING PATTERN *.h
 )

@@ -33,7 +33,6 @@ set(TM_SRC_DIR ${COMPONENTS_DIR}/transport_manager/src)
 
 include_directories (
   include
-  ${COMPONENTS_DIR}/include/
   ${COMPONENTS_DIR}/utils/include/
   ${COMPONENTS_DIR}/protocol_handler/include
   ${COMPONENTS_DIR}/connection_handler/include
@@ -44,6 +43,11 @@ include_directories (
   ${LOG4CXX_INCLUDE_DIRECTORY}
 )
 if (BUILD_BT_SUPPORT)
+  include_directories(
+  )
+endif()
+
+if (BUILD_USBMUXD_SUPPORT) 
   include_directories(
   )
 endif()
@@ -68,6 +72,16 @@ if (BUILD_BT_SUPPORT)
   ${TM_SRC_DIR}/bluetooth/bluetooth_connection_factory.cc
   ${TM_SRC_DIR}/bluetooth/bluetooth_socket_connection.cc
   ${TM_SRC_DIR}/bluetooth/bluetooth_device.cc
+  )
+endif()
+
+if (BUILD_USBMUXD_SUPPORT)
+  list (APPEND SOURCES
+  ${TM_SRC_DIR}/usbmuxd/usbmuxd_transport_adapter.cc
+  ${TM_SRC_DIR}/usbmuxd/usbmuxd_client_listener.cc
+  ${TM_SRC_DIR}/usbmuxd/usbmuxd_device.cc
+  ${TM_SRC_DIR}/usbmuxd/usbmuxd_socket_connection.cc
+  ${TM_SRC_DIR}/usbmuxd/usbmuxd_connection_factory.cc
   )
 endif()
 
@@ -104,6 +118,16 @@ if (BUILD_USB_SUPPORT)
     target_link_libraries(${target} usbdi)
   endif()
 endif(BUILD_USB_SUPPORT)
+
+if (BUILD_USBMUXD_SUPPORT)
+set(LIRBRARYS 
+    libplist.so
+    libusbmuxd.so
+    xml2.so
+    pthread.so 
+    )
+target_link_libraries(${target} ${LIRBRARYS} usbmuxd) 
+endif()
 
 if(ENABLE_LOG)
   target_link_libraries(${target} log4cxx -L${LOG4CXX_LIBS_DIRECTORY})

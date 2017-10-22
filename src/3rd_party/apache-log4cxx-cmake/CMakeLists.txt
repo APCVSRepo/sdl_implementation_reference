@@ -38,14 +38,23 @@ set(LOG4CXX_LIBS_DIRECTORY ${LOG4CXX_BUILD_DIRECTORY}/src/main/cpp/.libs)
 
 file(MAKE_DIRECTORY
   ${LOG4CXX_BUILD_DIRECTORY}
+  ${LOG4CXX_BUILD_INCLUDE_DIRECTORY}/include
 )
 
+if (FIREFLY_RK3288)
 set(COMMON_CONFIGURE_FLAGS
   "--host=arm-linux-gnueabihf"
   "--with-apr=../apr-build"
   "--with-apr-util=../apr-util-build"
   "LDFLAGS=-L${EXPAT_LIBS_DIRECTORY}"
 )
+else()
+set(COMMON_CONFIGURE_FLAGS
+  "--with-apr=../apr-build"
+  "--with-apr-util=../apr-util-build"
+  "LDFLAGS=-L${EXPAT_LIBS_DIRECTORY}"
+)
+endif()
 
 if(CMAKE_SYSTEM_NAME STREQUAL "QNX")
   if (CMAKE_SYSTEM_PROCESSOR MATCHES arm*)
@@ -55,9 +64,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "QNX")
   endif ()
   set(CONFIGURE_FLAGS "--host=${ARCHITECTURE}-nto-qnx" ${COMMON_CONFIGURE_FLAGS})
 else()
-  set(CONFIGURE_FLAGS 
-	${COMMON_CONFIGURE_FLAGS}
-  )
+  set(CONFIGURE_FLAGS ${COMMON_CONFIGURE_FLAGS})
 endif()
 
 add_custom_command(OUTPUT ${LOG4CXX_BUILD_DIRECTORY}/Makefile
@@ -67,28 +74,33 @@ add_custom_command(OUTPUT ${LOG4CXX_BUILD_DIRECTORY}/Makefile
   WORKING_DIRECTORY ${LOG4CXX_BUILD_DIRECTORY}
 )
 
+if (FIREFLY_RK3288)
 add_custom_target(liblog4cxx ALL make
   DEPENDS ${LOG4CXX_BUILD_DIRECTORY}/Makefile
   WORKING_DIRECTORY ${LOG4CXX_BUILD_DIRECTORY}
 )
-
-install(
-  DIRECTORY ${LOG4CXX_LIBS_DIRECTORY}/
-  DESTINATION ${3RD_PARTY_INSTALL_PREFIX_ARCH}/lib
-  USE_SOURCE_PERMISSIONS
-  FILES_MATCHING PATTERN liblog4cxx.so*
+else()
+add_custom_target(liblog4cxx ALL make
+  COMMAND /bin/bash -c \"
+	cd ${CMAKE_CURRENT_SOURCE_DIR}\;
+	git log . 1>/dev/null 2>&1\;
+        if [ \\$$? == 0 ]; then
+          grep \\".commit_hash\\" ${LOG4CXX_LIBS_DIRECTORY}/liblog4cxx.so 1>/dev/null 2>&1\;
+          if [ ! \\\$$? == 0 ]\; then
+            cd ${CMAKE_CURRENT_SOURCE_DIR} &&
+            git log --pretty=\\"format:%H\\" -1 ${LOG4CXX_SOURCE_DIRECTORY} > /tmp/commit_hash 2>/dev/null &&
+            echo \\"Adding .commit_hash section\\" &&
+            ${objcopy} --add-section .commit_hash=/tmp/commit_hash ${LOG4CXX_LIBS_DIRECTORY}/liblog4cxx.so ${LOG4CXX_LIBS_DIRECTORY}/liblog4cxx.so 1>/dev/null 2>&1\;
+          fi;
+        fi\"
+  DEPENDS ${LOG4CXX_BUILD_DIRECTORY}/Makefile
+  WORKING_DIRECTORY ${LOG4CXX_BUILD_DIRECTORY}
 )
+endif()
 
 install(
   DIRECTORY ${LOG4CXX_SOURCE_INCLUDE_DIRECTORY}/
-  DESTINATION ${3RD_PARTY_INSTALL_PREFIX}/include
-  USE_SOURCE_PERMISSIONS
-  FILES_MATCHING PATTERN *.h
-)
-
-install(
-  DIRECTORY ${LOG4CXX_BUILD_INCLUDE_DIRECTORY}/
-  DESTINATION ${3RD_PARTY_INSTALL_PREFIX}/include
+  DESTINATION ${LOG4CXX_BUILD_INCLUDE_DIRECTORY}
   USE_SOURCE_PERMISSIONS
   FILES_MATCHING PATTERN *.h
 )
