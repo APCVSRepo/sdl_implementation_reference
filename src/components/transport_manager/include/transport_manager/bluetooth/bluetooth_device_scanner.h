@@ -130,8 +130,8 @@ class BluetoothDeviceScanner : public DeviceScanner {
    * @param device_addresses Bluetooth addresses to search on
    * @return List of RFCOMM-channels lists
    */
-  std::vector<RfcommChannelVector> DiscoverSmartDeviceLinkRFCOMMChannels(
-      const std::vector<bdaddr_t>& device_addresses);
+  RfcommChannelVector DiscoverSmartDeviceLinkRFCOMMChannels(
+      const bdaddr_t& device_addresses);
 
   /**
    * @brief Finds RFCOMM-channels of SDL enabled applications for given device
