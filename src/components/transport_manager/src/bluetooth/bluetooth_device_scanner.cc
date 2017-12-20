@@ -193,6 +193,7 @@ void BluetoothDeviceScanner::DoInquiry() {
       paired_devices_, device_handle, &paired_devices_with_sdl_);
   UpdateTotalDeviceList();
 
+  /*
   LOG4CXX_INFO(logger_, "Starting hci_inquiry on device " << device_id);
   const uint8_t inquiry_time = 8u;  // Time unit is 1.28 seconds
   const size_t max_devices = 256u;
@@ -225,7 +226,8 @@ void BluetoothDeviceScanner::DoInquiry() {
   if (number_of_devices < 0) {
     LOG4CXX_DEBUG(logger_, "number_of_devices < 0");
     controller_->SearchDeviceFailed(SearchDeviceError());
-  }
+  } */
+  controller_->FindNewApplicationsRequest();
 }
 
 void BluetoothDeviceScanner::CheckSDLServiceOnDevices(
@@ -236,16 +238,14 @@ void BluetoothDeviceScanner::CheckSDLServiceOnDevices(
                 "enter. bd_addresses: "
                     << &bd_addresses << ", device_handle: " << device_handle
                     << ", discovered_devices: " << discovered_devices);
-  std::vector<RfcommChannelVector> sdl_rfcomm_channels =
-      DiscoverSmartDeviceLinkRFCOMMChannels(bd_addresses);
 
   for (size_t i = 0; i < bd_addresses.size(); ++i) {
-    if (sdl_rfcomm_channels[i].empty()) {
-      continue;
-    }
-
     const bdaddr_t& bd_address = bd_addresses[i];
     char deviceName[256];
+    
+    RfcommChannelVector sdl_rfcomm_channels =
+      DiscoverSmartDeviceLinkRFCOMMChannels(bd_address);
+      
     int hci_read_remote_name_ret =
         hci_read_remote_name(device_handle,
                              &bd_address,
@@ -261,7 +261,7 @@ void BluetoothDeviceScanner::CheckSDLServiceOnDevices(
     }
 
     Device* bluetooth_device =
-        new BluetoothDevice(bd_address, deviceName, sdl_rfcomm_channels[i]);
+        new BluetoothDevice(bd_address, deviceName, sdl_rfcomm_channels);
     if (bluetooth_device) {
       LOG4CXX_INFO(logger_, "Bluetooth device created successfully");
       discovered_devices->push_back(bluetooth_device);
@@ -272,37 +272,24 @@ void BluetoothDeviceScanner::CheckSDLServiceOnDevices(
   LOG4CXX_TRACE(logger_, "exit");
 }
 
-std::vector<BluetoothDeviceScanner::RfcommChannelVector>
-BluetoothDeviceScanner::DiscoverSmartDeviceLinkRFCOMMChannels(
-    const std::vector<bdaddr_t>& device_addresses) {
+RfcommChannelVector BluetoothDeviceScanner::DiscoverSmartDeviceLinkRFCOMMChannels(
+    const bdaddr_t& device_addresses) {
   LOG4CXX_TRACE(logger_, "enter device_addresses: " << &device_addresses);
-  const size_t size = device_addresses.size();
-  std::vector<RfcommChannelVector> result(size);
+  RfcommChannelVector result;
 
   static const int attempts = 4;
   static const int attempt_timeout = 5;
-  std::vector<bool> processed(size, false);
-  unsigned processed_count = 0;
   for (int nattempt = 0; nattempt < attempts; ++nattempt) {
-    for (size_t i = 0; i < size; ++i) {
-      if (processed[i]) {
-        continue;
-      }
-      const bool final = DiscoverSmartDeviceLinkRFCOMMChannels(
-          device_addresses[i], &result[i]);
-      if (final) {
-        processed[i] = true;
-        ++processed_count;
-      }
-    }
-    if (++processed_count >= size) {
+    const bool final = DiscoverSmartDeviceLinkRFCOMMChannels(
+      device_addresses, &result);
+    if (final) {
       break;
     }
     sleep(attempt_timeout);
   }
   LOG4CXX_TRACE(
       logger_,
-      "exit with vector<RfcommChannelVector>: size = " << result.size());
+      "exit with RfcommChannelVector: size = " << result.size());
   return result;
 }
 
